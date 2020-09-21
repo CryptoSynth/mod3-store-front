@@ -1,4 +1,4 @@
-# firebase-brownie To-Do
+# mod3-store-front To-Do
 - set rules for firebase database accessing
 - format price to get valadation for both AdminEditButton & AdminCreateButton
 
