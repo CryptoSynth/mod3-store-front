@@ -1,7 +1,9 @@
-# firebase-brownie
+# firebase-brownie To-Do
+- set rules for firebase database accessing
+- format price to get valadation for both AdminEditButton & AdminCreateButton
 
-## Project setup
-```
+
+## Project scripts 
 npm install
 ```
 
