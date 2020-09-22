@@ -32,6 +32,40 @@
                   counter="50"
                 ></v-text-field>
               </v-col>
+
+              <v-col cols="12">
+                <v-row align="center" justify="center">
+                  <v-col cols="12" sm="6">
+                    <v-file-input
+                      clearable
+                      v-model="image"
+                      color="pink accent-4"
+                      label="Upload Image"
+                      prepend-icon
+                      prepend-inner-icon="mdi-upload"
+                      @change="uploadImage"
+                      outlined
+                      :rules="imageRule"
+                    >
+                      <template #selection="{text}">
+                        <v-chip small label color="pink accent-4">{{text}}</v-chip>
+                      </template>
+                    </v-file-input>
+                  </v-col>
+
+                  <v-col class="text-center" cols="12" sm="6">
+                    <h3 class="pb-2">Image Preview</h3>
+                    <v-avatar rounded v-if="imageUploaded" size="60">
+                      <img :src="imageUploaded" />
+                    </v-avatar>
+                    <v-avatar rounded color="pink accent-4" size="60" v-else>
+                      <v-icon v-if="imageUpload"></v-icon>
+                      <v-icon v-else size="35">mdi-image</v-icon>
+                    </v-avatar>
+                  </v-col>
+                </v-row>
+              </v-col>
+
               <v-col cols="12">
                 <v-textarea
                   v-model="description"
@@ -84,11 +118,17 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+
 export default {
   name: 'product-create-button',
 
   data: () => ({
     dialog: false,
+
+    image: [],
+    imageRule: [v => !!v || 'Image is required'],
+
     name: '',
     nameRule: [
       v => !!v || 'Name is required',
@@ -127,21 +167,18 @@ export default {
     }
   }),
 
+  computed: {
+    ...mapState({
+      imageUploaded: state => state.products.imageUploaded
+    })
+  },
+
   methods: {
     close() {
       this.dialog = false;
     },
 
     createProduct() {
-      //form validate
-      //if error
-      // set status error
-      // let status  = {
-      //   msg: 'Unable to create product, please try again.',
-      //   color: 'error',
-      //   active: true,
-      // }
-
       const isValid = this.$refs.productCreateForm.validate();
 
       if (isValid) {
@@ -153,6 +190,7 @@ export default {
 
         const new_product = {
           name: this.name,
+          image: this.imageUploaded,
           description: this.description,
           price: this.price,
           quantity: this.quantity
@@ -162,6 +200,11 @@ export default {
 
         this.dialog = false;
       }
+    },
+
+    uploadImage() {
+      console.log(this.image);
+      this.$store.dispatch('products/uploadImage', this.image);
     }
   }
 };

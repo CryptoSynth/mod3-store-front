@@ -1,8 +1,32 @@
-import { db } from '../../services/firebase';
+import { db, storage } from '../../services/firebase';
+
+//ENUM status
+const STATUS = {
+  //ERROR status
+  ERROR: err => {
+    return {
+      msg: `${err.message ||
+        err.code} || 'There seems to be an error, please try again.' `,
+      color: 'error',
+      active: true
+    };
+  },
+
+  //SUCCESS status
+  SUCCESS: msg => {
+    return {
+      msg: `${msg}`,
+      color: 'success',
+      active: true
+    };
+  }
+};
 
 const state = () => ({
   products: [],
-  product_status: {}
+  imageUploaded: null,
+  progress: 0,
+  status: null
 });
 
 const mutations = {
@@ -30,8 +54,16 @@ const mutations = {
     state.products.splice(product_index, 1);
   },
 
+  SET_UPLOADED_IMAGE: (state, image) => {
+    state.imageUploaded = image;
+  },
+
+  SET_PROGESS: (state, progress) => {
+    state.progress = progress;
+  },
+
   SET_STATUS: (state, status) => {
-    return (state.product_status = status);
+    state.status = status;
   }
 };
 
@@ -61,7 +93,7 @@ const actions = {
   //Create new Products from firebase collection products
   //====================================================
   createProduct({ commit }, payload) {
-    let { new_product, status } = payload;
+    let { new_product } = payload;
 
     //generate doc ref
     const docRef = db.collection('products').doc();
@@ -77,12 +109,10 @@ const actions = {
       .set(new_product)
       .then(() => {
         commit('SET_NEW_PRODUCT', new_product);
-        commit('SET_STATUS', status); //created succesful status
+        commit('SET_STATUS', STATUS.SUCCESS('Product Created!'));
       })
       .catch(err => {
-        if (err) {
-          commit('SET_STATUS', status); //created error status
-        }
+        commit('SET_STATUS', STATUS.ERROR(err.msg || err.code));
       });
   },
 
@@ -90,39 +120,67 @@ const actions = {
   //Update products from firebase collection products
   //====================================================
   updateProduct({ commit }, payload) {
-    const { update_product, status } = payload;
+    const { update_product } = payload;
 
     db.collection('products')
       .doc(update_product.id)
       .update(update_product)
       .then(() => {
         commit('UPDATE_PRODUCT'); //update success status
+        commit('SET_STATUS', STATUS.SUCCESS('Product Updated!'));
       })
       .catch(err => {
-        if (err) {
-          commit('SET_STATUS', status); //update error status
-        }
+        commit('SET_STATUS', STATUS.ERROR(err.msg || err.code));
       });
   },
 
   //====================================================
-  //Delete products frp, firebase collection products
+  //Delete products from firebase collection products
   //====================================================
   deleteProduct({ commit }, payload) {
-    const { product_id, status } = payload;
+    const { product_id } = payload;
 
     db.collection('products')
       .doc(product_id)
       .delete()
       .then(() => {
         commit('DELETE_PRODUCT', product_id); //delete success status
-        commit('SET_STATUS', status);
+        commit('SET_STATUS', STATUS.SUCCESS('Product Deleted!'));
       })
       .catch(err => {
-        if (err) {
-          commit('SET_STATUS', status); //delete error status
-        }
+        commit('SET_STATUS', STATUS.ERROR(err.msg || err.code));
       });
+  },
+
+  //====================================================
+  //Upload image to firebase storage path -> /assets/images/
+  //====================================================
+  uploadImage({ commit }, image) {
+    const image_path = storage.ref().child('assets/images/');
+
+    //upload image to path -> '/assets/images/'
+    const image_task = image_path.put(image);
+
+    //during upload state capture snapshot, error, & upload completion
+    image_task.on(
+      'state_changed',
+      snapshot => {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log(`Upload is ${progress}% done`);
+      },
+      err => {
+        console.log(`
+        code: ${err.code}
+        message: ${err.message}
+        `);
+      },
+      () => {
+        image_task.snapshot.ref.getDownloadURL().then(imageURL => {
+          commit('SET_UPLOADED_IMAGE', imageURL);
+        });
+      }
+    );
   }
 };
 

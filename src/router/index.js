@@ -32,10 +32,6 @@ const routes = [
       {
         path: 'products',
         component: () => import('../views/AdminProducts')
-      },
-      {
-        path: 'profile',
-        component: () => import('../views/AdminProfile')
       }
     ]
   }

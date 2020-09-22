@@ -51,24 +51,8 @@ export default {
     },
 
     deleteProduct(product) {
-      //form validate
-      //if error
-      // set status error
-      // let status  = {
-      //   msg: 'Unable to create product, please try again.',
-      //   color: 'error',
-      //   active: true,
-      // }
-
-      let status = {
-        msg: 'Product Deleted!',
-        color: 'success',
-        active: true
-      };
-
       this.$store.dispatch('products/deleteProduct', {
-        product_id: product.id,
-        status
+        product_id: product.id
       });
       this.dialog = false;
     }

@@ -14,7 +14,7 @@
             >
               <v-hover v-slot:default="{ hover }">
                 <v-card class="mx-auto rounded-xl" dark max-width="400">
-                  <v-img :aspect-ratio="16/9" :src="require('../assets/images/macaroons.jpg')">
+                  <v-img :aspect-ratio="16/9" :src="product.image">
                     <v-expand-transition>
                       <div
                         v-if="hover"

@@ -1,6 +1,7 @@
 import * as firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore/';
+import 'firebase/firebase-storage';
 
 import {
   API_KEY,
@@ -26,8 +27,9 @@ firebase.initializeApp({
 //utils
 const db = firebase.firestore();
 const auth = firebase.auth();
+const storage = firebase.storage();
 
 //collection references (optional/refactor later)
 
 //export util/refs
-export { db, auth };
+export { db, auth, storage };
