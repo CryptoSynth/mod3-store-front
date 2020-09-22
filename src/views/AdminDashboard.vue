@@ -32,29 +32,10 @@
     </v-navigation-drawer>
 
     <router-view></router-view>
-
-    <v-snackbar v-model="status.active" bottom :color="status.color">
-      {{ status.msg }}
-      <template v-slot:action="{ attrs }">
-        <v-btn
-          v-bind="attrs"
-          color="red "
-          class="ml-3"
-          dark
-          text
-          fab
-          @click="status.active = false"
-        >
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex';
-
 export default {
   name: 'admin-dashboard',
 
@@ -70,12 +51,6 @@ export default {
       }
     ]
   }),
-
-  computed: {
-    ...mapState({
-      status: state => state.products.status
-    })
-  },
 
   methods: {
     toggleMenu() {

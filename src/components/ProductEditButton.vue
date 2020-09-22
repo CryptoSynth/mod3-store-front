@@ -22,6 +22,41 @@
                 counter="50"
               ></v-text-field>
             </v-col>
+
+            <v-col cols="12">
+              <v-row align="center" justify="center">
+                <v-col cols="12" sm="6">
+                  <v-file-input
+                    clearable
+                    v-model="product.image"
+                    color="pink accent-4"
+                    label="Upload Image"
+                    prepend-icon
+                    prepend-inner-icon="mdi-upload"
+                    @change="uploadImage"
+                    outlined
+                    :rules="imageRule"
+                    @click:clear="clearImage"
+                  >
+                    <template #selection="{text}">
+                      <v-chip small label color="pink accent-4">{{text}}</v-chip>
+                    </template>
+                  </v-file-input>
+                </v-col>
+
+                <v-col class="text-center" cols="12" sm="6">
+                  <h3 class="pb-2">Image Preview</h3>
+                  <v-avatar rounded v-if="product.image || imageUploaded" size="80">
+                    <img :src="product.image || imageUploaded" />
+                  </v-avatar>
+                  <v-avatar v-else rounded color="pink accent-4" size="80">
+                    <v-progress-circular v-if="isLoading" indeterminate color="white"></v-progress-circular>
+                    <v-icon v-else size="80">mdi-image</v-icon>
+                  </v-avatar>
+                </v-col>
+              </v-row>
+            </v-col>
+
             <v-col cols="12">
               <v-textarea
                 v-model="product.description"
@@ -72,6 +107,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+
 export default {
   name: 'product-edit-button',
 
@@ -81,6 +118,9 @@ export default {
         type: String
       },
       name: {
+        type: String
+      },
+      image: {
         type: String
       },
       description: {
@@ -97,6 +137,10 @@ export default {
 
   data: () => ({
     dialog: false,
+
+    image: [],
+    imageRule: [v => !!v || 'Image is required'],
+
     name: '',
     nameRule: [
       v => !!v || 'Name is required',
@@ -140,6 +184,13 @@ export default {
     }
   }),
 
+  computed: {
+    ...mapState({
+      imageUploaded: state => state.products.imageUploaded,
+      isLoading: state => state.products.isLoading
+    })
+  },
+
   methods: {
     close() {
       this.dialog = false;
@@ -149,19 +200,22 @@ export default {
       const isValid = this.$refs.productEditForm.validate();
 
       if (isValid) {
-        let status = {
-          msg: 'Product Updated!',
-          color: 'success',
-          active: true
-        };
-
         this.$store.dispatch('products/updateProduct', {
-          update_product,
-          status
+          update_product
         });
 
         this.dialog = false;
       }
+    },
+
+    uploadImage() {
+      if (this.image) {
+        this.$store.dispatch('products/uploadImage', this.image);
+      }
+    },
+
+    clearImage() {
+      this.$store.dispatch('products/clearImage');
     }
   }
 };

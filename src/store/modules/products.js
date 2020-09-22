@@ -4,9 +4,16 @@ import { db, storage } from '../../services/firebase';
 const STATUS = {
   //ERROR status
   ERROR: err => {
+    console.log(err);
     return {
-      msg: `${err.message ||
-        err.code} || 'There seems to be an error, please try again.' `,
+      msg:
+        `
+         Code: ${err.code || '0'}
+         Message: ${err.message ||
+           err.msg ||
+           'There seems to be an error, please try again.'} 
+        
+        ` || 'Server Error Please try refreshing your browser',
       color: 'error',
       active: true
     };
@@ -25,8 +32,8 @@ const STATUS = {
 const state = () => ({
   products: [],
   imageUploaded: null,
-  progress: 0,
-  status: null
+  isLoading: null,
+  status: {}
 });
 
 const mutations = {
@@ -36,6 +43,13 @@ const mutations = {
 
   SET_NEW_PRODUCT: (state, new_product) => {
     state.products.push(new_product);
+
+    //sort products array in acending order
+    const sortedProducts = state.products.sort((a, b) => {
+      return a.price - b.price;
+    });
+
+    state.products = sortedProducts;
   },
 
   UPDATE_PRODUCT: (state, update_product) => {
@@ -58,8 +72,12 @@ const mutations = {
     state.imageUploaded = image;
   },
 
-  SET_PROGESS: (state, progress) => {
-    state.progress = progress;
+  CLEAR_UPLOADED_IMAGE: state => {
+    state.imageUploaded = null;
+  },
+
+  SET_LOADING_STATUS: (state, isLoading) => {
+    state.isLoading = isLoading;
   },
 
   SET_STATUS: (state, status) => {
@@ -112,7 +130,7 @@ const actions = {
         commit('SET_STATUS', STATUS.SUCCESS('Product Created!'));
       })
       .catch(err => {
-        commit('SET_STATUS', STATUS.ERROR(err.msg || err.code));
+        commit('SET_STATUS', STATUS.ERROR(err));
       });
   },
 
@@ -126,11 +144,11 @@ const actions = {
       .doc(update_product.id)
       .update(update_product)
       .then(() => {
-        commit('UPDATE_PRODUCT'); //update success status
+        commit('UPDATE_PRODUCT', update_product); //update success status
         commit('SET_STATUS', STATUS.SUCCESS('Product Updated!'));
       })
       .catch(err => {
-        commit('SET_STATUS', STATUS.ERROR(err.msg || err.code));
+        commit('SET_STATUS', STATUS.ERROR(err));
       });
   },
 
@@ -148,7 +166,7 @@ const actions = {
         commit('SET_STATUS', STATUS.SUCCESS('Product Deleted!'));
       })
       .catch(err => {
-        commit('SET_STATUS', STATUS.ERROR(err.msg || err.code));
+        commit('SET_STATUS', STATUS.ERROR(err));
       });
   },
 
@@ -161,26 +179,62 @@ const actions = {
     //upload image to path -> '/assets/images/'
     const image_task = image_path.put(image);
 
-    //during upload state capture snapshot, error, & upload completion
-    image_task.on(
-      'state_changed',
-      snapshot => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log(`Upload is ${progress}% done`);
-      },
-      err => {
-        console.log(`
-        code: ${err.code}
-        message: ${err.message}
-        `);
-      },
-      () => {
-        image_task.snapshot.ref.getDownloadURL().then(imageURL => {
-          commit('SET_UPLOADED_IMAGE', imageURL);
+    //create promise to wait for image processing during image upload
+    const processing_image = new Promise((resolve, reject) => {
+      image_task.on(
+        'state_changed',
+        snapshot => {
+          commit('SET_LOADING_STATUS', true); //start image loading
+
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+
+          //if the image is done processing resolve the process with a message
+          if (progress >= 100) {
+            resolve('Done Processing Image!');
+          }
+        },
+        err => {
+          //reject any errors
+          reject(err);
+        }
+      );
+    });
+
+    //after
+    processing_image
+      .then(res => {
+        console.log(res);
+
+        image_task.snapshot.ref.getDownloadURL().then(downloadURL => {
+          commit('SET_LOADING_STATUS', false); //image is done loading
+          commit('SET_UPLOADED_IMAGE', downloadURL);
         });
-      }
-    );
+      })
+      .catch(err => {
+        commit('SET_STATUS', STATUS.ERROR(err));
+      });
+  },
+
+  //====================================================
+  //Delete image from firebase storage path -> /assets/images/
+  //====================================================
+  deleteImage({ commit }, image) {
+    const image_path = storage.ref().child(`assets/images/${image}`);
+
+    //if the image exists in the ref path then delete if not set imageUpload = null
+    image_path
+      .delete()
+      .then(() => {
+        commit('CLEAR_UPLOADED_IMAGE');
+      })
+      .catch(err => {
+        commit('SET_STATUS', STATUS.ERROR(err));
+      });
+  },
+
+  clearImage({ commit }) {
+    commit('CLEAR_UPLOADED_IMAGE');
   }
 };
 

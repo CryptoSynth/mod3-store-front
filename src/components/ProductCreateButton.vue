@@ -46,6 +46,7 @@
                       @change="uploadImage"
                       outlined
                       :rules="imageRule"
+                      @click:clear="clearImage"
                     >
                       <template #selection="{text}">
                         <v-chip small label color="pink accent-4">{{text}}</v-chip>
@@ -55,12 +56,12 @@
 
                   <v-col class="text-center" cols="12" sm="6">
                     <h3 class="pb-2">Image Preview</h3>
-                    <v-avatar rounded v-if="imageUploaded" size="60">
+                    <v-avatar rounded v-if="imageUploaded" size="80">
                       <img :src="imageUploaded" />
                     </v-avatar>
-                    <v-avatar rounded color="pink accent-4" size="60" v-else>
-                      <v-icon v-if="imageUpload"></v-icon>
-                      <v-icon v-else size="35">mdi-image</v-icon>
+                    <v-avatar v-else rounded color="pink accent-4" size="80">
+                      <v-progress-circular v-if="isLoading" indeterminate color="white"></v-progress-circular>
+                      <v-icon v-else size="80">mdi-image</v-icon>
                     </v-avatar>
                   </v-col>
                 </v-row>
@@ -169,7 +170,8 @@ export default {
 
   computed: {
     ...mapState({
-      imageUploaded: state => state.products.imageUploaded
+      imageUploaded: state => state.products.imageUploaded,
+      isLoading: state => state.products.isLoading
     })
   },
 
@@ -182,12 +184,6 @@ export default {
       const isValid = this.$refs.productCreateForm.validate();
 
       if (isValid) {
-        let status = {
-          msg: 'Product Created!',
-          color: 'success',
-          active: true
-        };
-
         const new_product = {
           name: this.name,
           image: this.imageUploaded,
@@ -196,15 +192,20 @@ export default {
           quantity: this.quantity
         };
 
-        this.$store.dispatch('products/createProduct', { new_product, status });
+        this.$store.dispatch('products/createProduct', { new_product });
 
         this.dialog = false;
       }
     },
 
     uploadImage() {
-      console.log(this.image);
-      this.$store.dispatch('products/uploadImage', this.image);
+      if (this.image) {
+        this.$store.dispatch('products/uploadImage', this.image);
+      }
+    },
+
+    clearImage() {
+      this.$store.dispatch('products/clearImage');
     }
   }
 };

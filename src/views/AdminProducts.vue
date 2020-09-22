@@ -39,6 +39,15 @@
               </v-hover>
             </v-col>
           </v-row>
+
+          <v-snackbar :timeout="-1" v-model="status.active" bottom :color="status.color">
+            {{ status.msg }}
+            <template v-slot:action="{ attrs }">
+              <v-btn v-bind="attrs" class="ml-3" x-small dark fab @click="status.active = false">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </template>
+          </v-snackbar>
         </v-container>
       </template>
 
@@ -76,12 +85,14 @@ export default {
 
   computed: {
     ...mapState({
-      products: state => state.products.products
+      products: state => state.products.products,
+      status: state => state.products.status
     })
   },
 
   created() {
     this.$store.dispatch('products/fetchProducts');
+    console.log(this.products);
   }
 };
 </script>
