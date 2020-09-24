@@ -34,9 +34,41 @@
               </v-col>
 
               <v-col cols="12">
-                <v-row align="center" justify="center">
-                  <v-col cols="12" sm="6">
+                <v-row align="center" justify="center" no-gutters>
+                  <v-col class="text-center" cols="12" sm="12">
+                    <v-card
+                      min-height="250"
+                      max-height="300"
+                      class="d-flex flex-column justify-center align-center absolute"
+                      flat
+                      v-if="loadingValue"
+                    >
+                      <v-img
+                        class="rounded-lg elevation-8"
+                        max-height="250px"
+                        v-if="imageUploaded"
+                        :src="imageUploaded"
+                      ></v-img>
+                      <v-card-actions class="align-self-end" v-if="imageUploaded">
+                        <v-btn class="mt-5" @click="deleteImage" color="red accent-4" dark rounded>
+                          <v-icon>mdi-delete</v-icon>
+                        </v-btn>
+                      </v-card-actions>
+
+                      <v-progress-circular
+                        v-else
+                        :size="90"
+                        :width="9"
+                        :rotate="360"
+                        :value="loadingValue"
+                        color="pink accent-4"
+                      >{{loadingValue}}%</v-progress-circular>
+                    </v-card>
+                  </v-col>
+
+                  <v-col class="text-center" cols="12">
                     <v-file-input
+                      v-if="!imageUploaded"
                       clearable
                       v-model="image"
                       color="pink accent-4"
@@ -46,23 +78,12 @@
                       @change="uploadImage"
                       outlined
                       :rules="imageRule"
-                      @click:clear="clearImage"
+                      @click:clear="deleteImage"
                     >
                       <template #selection="{text}">
                         <v-chip small label color="pink accent-4">{{text}}</v-chip>
                       </template>
                     </v-file-input>
-                  </v-col>
-
-                  <v-col class="text-center" cols="12" sm="6">
-                    <h3 class="pb-2">Image Preview</h3>
-                    <v-avatar rounded v-if="imageUploaded" size="80">
-                      <img :src="imageUploaded" />
-                    </v-avatar>
-                    <v-avatar v-else rounded color="pink accent-4" size="80">
-                      <v-progress-circular v-if="isLoading" indeterminate color="white"></v-progress-circular>
-                      <v-icon v-else size="80">mdi-image</v-icon>
-                    </v-avatar>
                   </v-col>
                 </v-row>
               </v-col>
@@ -171,7 +192,7 @@ export default {
   computed: {
     ...mapState({
       imageUploaded: state => state.products.imageUploaded,
-      isLoading: state => state.products.isLoading
+      loadingValue: state => state.products.loadingValue
     })
   },
 
@@ -184,7 +205,7 @@ export default {
       const isValid = this.$refs.productCreateForm.validate();
 
       if (isValid) {
-        const new_product = {
+        const newProduct = {
           name: this.name,
           image: this.imageUploaded,
           description: this.description,
@@ -192,10 +213,17 @@ export default {
           quantity: this.quantity
         };
 
-        this.$store.dispatch('products/createProduct', { new_product });
+        this.$store.dispatch('products/createProduct', { newProduct });
 
         this.dialog = false;
       }
+
+      //reset values after creating product
+      this.name = '';
+      this.$store.commit('products/CLEAR_UPLOADED_IMAGE');
+      this.description = '';
+      this.price = '';
+      this.quantity = '';
     },
 
     uploadImage() {
@@ -204,8 +232,9 @@ export default {
       }
     },
 
-    clearImage() {
-      this.$store.dispatch('products/clearImage');
+    deleteImage() {
+      this.$store.dispatch('products/deleteImage', this.image);
+      this.image = [];
     }
   }
 };

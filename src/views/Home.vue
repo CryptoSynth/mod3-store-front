@@ -1,7 +1,7 @@
 <template>
   <div>
-    <v-app-bar app dark>
-      COMPANY LOGO HERE
+    <v-app-bar dark app>
+      <h1 class="display-1">Brownie Inc.</h1>
       <v-spacer></v-spacer>
 
       <span v-if="userSnipcart">

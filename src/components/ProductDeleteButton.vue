@@ -51,9 +51,7 @@ export default {
     },
 
     deleteProduct(product) {
-      this.$store.dispatch('products/deleteProduct', {
-        product_id: product.id
-      });
+      this.$store.dispatch('products/deleteProduct', product.id);
       this.dialog = false;
     }
   }

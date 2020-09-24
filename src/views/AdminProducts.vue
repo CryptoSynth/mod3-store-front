@@ -18,7 +18,7 @@
                     <v-expand-transition>
                       <div
                         v-if="hover"
-                        class="d-flex transition-fast-in-fast-out pink accent-4 darken-2 v-card--reveal display-3 white--text"
+                        class="d-flex transition-fast-in-fast-out pink accent-4 darken-2 v-card--reveal display-1 white--text"
                         style="height: 100%;"
                       >{{product.name}}</div>
                     </v-expand-transition>
@@ -38,6 +38,15 @@
                 </v-card>
               </v-hover>
             </v-col>
+            <v-col cols="12" sm="6" md="3" lg="4">
+              <v-sheet
+                color="transparent"
+                class="rounded-xl d-flex flex-column align-center justify-center"
+                height="350"
+              >
+                <ProductCreateButton />
+              </v-sheet>
+            </v-col>
           </v-row>
 
           <v-snackbar :timeout="-1" v-model="status.active" bottom :color="status.color">
@@ -49,16 +58,6 @@
             </template>
           </v-snackbar>
         </v-container>
-      </template>
-
-      <template #footer>
-        <v-sheet
-          color="transparent"
-          class="rounded-xl d-flex flex-column align-center justify-center"
-          height="350"
-        >
-          <ProductCreateButton />
-        </v-sheet>
       </template>
     </v-data-iterator>
   </div>
@@ -92,7 +91,6 @@ export default {
 
   created() {
     this.$store.dispatch('products/fetchProducts');
-    console.log(this.products);
   }
 };
 </script>

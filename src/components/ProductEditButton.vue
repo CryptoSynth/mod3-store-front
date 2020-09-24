@@ -27,16 +27,13 @@
               <v-row align="center" justify="center">
                 <v-col cols="12" sm="6">
                   <v-file-input
-                    clearable
                     v-model="product.image"
                     color="pink accent-4"
                     label="Upload Image"
                     prepend-icon
                     prepend-inner-icon="mdi-upload"
-                    @change="uploadImage"
                     outlined
                     :rules="imageRule"
-                    @click:clear="clearImage"
                   >
                     <template #selection="{text}">
                       <v-chip small label color="pink accent-4">{{text}}</v-chip>
@@ -49,10 +46,11 @@
                   <v-avatar rounded v-if="product.image || imageUploaded" size="80">
                     <img :src="product.image || imageUploaded" />
                   </v-avatar>
-                  <v-avatar v-else rounded color="pink accent-4" size="80">
-                    <v-progress-circular v-if="isLoading" indeterminate color="white"></v-progress-circular>
-                    <v-icon v-else size="80">mdi-image</v-icon>
-                  </v-avatar>
+                  <v-progress-circular
+                    :rotate="360"
+                    :value="loadingValue"
+                    color="pink accent-4"
+                  >{{loadingValue}}</v-progress-circular>
                 </v-col>
               </v-row>
             </v-col>
@@ -187,7 +185,7 @@ export default {
   computed: {
     ...mapState({
       imageUploaded: state => state.products.imageUploaded,
-      isLoading: state => state.products.isLoading
+      loadingValue: state => state.products.loadingValue
     })
   },
 
@@ -196,12 +194,12 @@ export default {
       this.dialog = false;
     },
 
-    updateProduct(update_product) {
+    updateProduct(updateProduct) {
       const isValid = this.$refs.productEditForm.validate();
 
       if (isValid) {
         this.$store.dispatch('products/updateProduct', {
-          update_product
+          updateProduct
         });
 
         this.dialog = false;
@@ -214,8 +212,9 @@ export default {
       }
     },
 
-    clearImage() {
-      this.$store.dispatch('products/clearImage');
+    deleteImage(productImage) {
+      this.$store.dispatch('products/deleteImage', productImage);
+      this.image = [];
     }
   }
 };

@@ -32,7 +32,7 @@ const STATUS = {
 const state = () => ({
   products: [],
   imageUploaded: null,
-  isLoading: null,
+  loadingValue: 0,
   status: {}
 });
 
@@ -41,8 +41,8 @@ const mutations = {
     state.products.push(product);
   },
 
-  SET_NEW_PRODUCT: (state, new_product) => {
-    state.products.push(new_product);
+  SET_NEW_PRODUCT: (state, newProduct) => {
+    state.products.push(newProduct);
 
     //sort products array in acending order
     const sortedProducts = state.products.sort((a, b) => {
@@ -52,20 +52,20 @@ const mutations = {
     state.products = sortedProducts;
   },
 
-  UPDATE_PRODUCT: (state, update_product) => {
-    const product_index = state.products.findIndex(product => {
-      return product.id === update_product.id;
+  UPDATE_PRODUCT: (state, updateProduct) => {
+    const productIndex = state.products.findIndex(product => {
+      return product.id === updateProduct.id;
     });
 
-    state.products.splice(product_index, 1, update_product);
+    state.products.splice(productIndex, 1, updateProduct);
   },
 
-  DELETE_PRODUCT: (state, product_id) => {
-    const product_index = state.products.findIndex(product => {
-      return product.id === product_id;
+  DELETE_PRODUCT: (state, productID) => {
+    const productIndex = state.products.findIndex(product => {
+      return product.id === productID;
     });
 
-    state.products.splice(product_index, 1);
+    state.products.splice(productIndex, 1);
   },
 
   SET_UPLOADED_IMAGE: (state, image) => {
@@ -76,8 +76,8 @@ const mutations = {
     state.imageUploaded = null;
   },
 
-  SET_LOADING_STATUS: (state, isLoading) => {
-    state.isLoading = isLoading;
+  SET_LOADING_STATUS: (state, loadingValue) => {
+    state.loadingValue = loadingValue;
   },
 
   SET_STATUS: (state, status) => {
@@ -111,22 +111,22 @@ const actions = {
   //Create new Products from firebase collection products
   //====================================================
   createProduct({ commit }, payload) {
-    let { new_product } = payload;
+    let { newProduct } = payload;
 
     //generate doc ref
     const docRef = db.collection('products').doc();
 
     //new product w/ docRef id
-    new_product = {
+    newProduct = {
       id: docRef.id, // set docRef id to the new product created
-      ...new_product
+      ...newProduct
     };
 
     //add docRef to firebase store w/ new prouct
     docRef
-      .set(new_product)
+      .set(newProduct)
       .then(() => {
-        commit('SET_NEW_PRODUCT', new_product);
+        commit('SET_NEW_PRODUCT', newProduct);
         commit('SET_STATUS', STATUS.SUCCESS('Product Created!'));
       })
       .catch(err => {
@@ -138,13 +138,13 @@ const actions = {
   //Update products from firebase collection products
   //====================================================
   updateProduct({ commit }, payload) {
-    const { update_product } = payload;
+    const { updateProduct } = payload;
 
     db.collection('products')
-      .doc(update_product.id)
-      .update(update_product)
+      .doc(updateProduct.id)
+      .update(updateProduct)
       .then(() => {
-        commit('UPDATE_PRODUCT', update_product); //update success status
+        commit('UPDATE_PRODUCT', updateProduct); //update success status
         commit('SET_STATUS', STATUS.SUCCESS('Product Updated!'));
       })
       .catch(err => {
@@ -155,14 +155,12 @@ const actions = {
   //====================================================
   //Delete products from firebase collection products
   //====================================================
-  deleteProduct({ commit }, payload) {
-    const { product_id } = payload;
-
+  deleteProduct({ commit }, productID) {
     db.collection('products')
-      .doc(product_id)
+      .doc(productID)
       .delete()
       .then(() => {
-        commit('DELETE_PRODUCT', product_id); //delete success status
+        commit('DELETE_PRODUCT', productID); //delete success status
         commit('SET_STATUS', STATUS.SUCCESS('Product Deleted!'));
       })
       .catch(err => {
@@ -173,68 +171,63 @@ const actions = {
   //====================================================
   //Upload image to firebase storage path -> /assets/images/
   //====================================================
-  uploadImage({ commit }, image) {
-    const image_path = storage.ref().child('assets/images/');
+  async uploadImage({ commit }, image) {
+    //image path reference
+    const imageRef = storage.ref().child(`assets/images/`);
 
-    //upload image to path -> '/assets/images/'
-    const image_task = image_path.put(image);
+    try {
+      const imageTask = imageRef.child(`${image.name}`).put(image, {
+        contentType: image.type
+      });
 
-    //create promise to wait for image processing during image upload
-    const processing_image = new Promise((resolve, reject) => {
-      image_task.on(
+      imageTask.on(
         'state_changed',
         snapshot => {
-          commit('SET_LOADING_STATUS', true); //start image loading
-
           const progress =
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
 
           //if the image is done processing resolve the process with a message
+          console.log(progress);
+          commit('SET_LOADING_STATUS', parseInt(progress)); //image loading
+
           if (progress >= 100) {
-            resolve('Done Processing Image!');
+            console.log('Done processing image!');
           }
         },
         err => {
           //reject any errors
-          reject(err);
+          console.log(err);
+        },
+        async () => {
+          //get image downloadURL
+          const downloadURL = await imageTask.snapshot.ref.getDownloadURL();
+          commit('SET_UPLOADED_IMAGE', downloadURL);
         }
       );
-    });
-
-    //after
-    processing_image
-      .then(res => {
-        console.log(res);
-
-        image_task.snapshot.ref.getDownloadURL().then(downloadURL => {
-          commit('SET_LOADING_STATUS', false); //image is done loading
-          commit('SET_UPLOADED_IMAGE', downloadURL);
-        });
-      })
-      .catch(err => {
-        commit('SET_STATUS', STATUS.ERROR(err));
-      });
+    } catch (err) {
+      console.log(err);
+      commit('SET_STATUS', STATUS.ERROR(err));
+    }
   },
 
   //====================================================
   //Delete image from firebase storage path -> /assets/images/
   //====================================================
   deleteImage({ commit }, image) {
-    const image_path = storage.ref().child(`assets/images/${image}`);
+    const imageRef = storage.ref().child(`assets/images/`);
 
-    //if the image exists in the ref path then delete if not set imageUpload = null
-    image_path
+    const imageTask = imageRef.child(`${image.name}`);
+
+    // delete image from storage
+    imageTask
       .delete()
       .then(() => {
+        commit('SET_LOADING_STATUS', 0);
         commit('CLEAR_UPLOADED_IMAGE');
       })
       .catch(err => {
         commit('SET_STATUS', STATUS.ERROR(err));
       });
-  },
-
-  clearImage({ commit }) {
-    commit('CLEAR_UPLOADED_IMAGE');
   }
 };
 
