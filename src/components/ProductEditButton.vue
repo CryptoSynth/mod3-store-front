@@ -24,14 +24,49 @@
             </v-col>
 
             <v-col cols="12">
-              <v-row align="center" justify="center">
-                <v-col cols="12" sm="6">
+              <v-row align="center" justify="center" no-gutters>
+                <v-col class="text-center" cols="12" sm="12">
+                  <v-card
+                    min-height="250"
+                    max-height="300"
+                    class="d-flex flex-column justify-center align-center absolute"
+                    flat
+                    v-if="loadingValue || product.image.url"
+                  >
+                    <v-img
+                      v-if="imageUploaded || product.image.url"
+                      class="rounded-lg elevation-8"
+                      max-height="250px"
+                      :src=" product.image.url || imageUploaded.url"
+                    ></v-img>
+                    <v-card-actions
+                      v-if="imageUploaded  ||  product.image.url"
+                      class="align-self-end"
+                    >
+                      <v-btn class="mt-5" @click="deleteImage" color="red accent-4" dark rounded>
+                        <v-icon>mdi-delete</v-icon>
+                      </v-btn>
+                    </v-card-actions>
+
+                    <v-progress-circular
+                      v-else
+                      :size="90"
+                      :width="9"
+                      :rotate="360"
+                      :value="loadingValue"
+                      color="pink accent-4"
+                    >{{loadingValue}}%</v-progress-circular>
+                  </v-card>
+                </v-col>
+
+                <v-col v-if="!imageUploaded  && !product.image.url" class="text-center" cols="12">
                   <v-file-input
-                    v-model="product.image"
+                    v-model="image"
                     color="pink accent-4"
                     label="Upload Image"
                     prepend-icon
                     prepend-inner-icon="mdi-upload"
+                    @change="uploadImage"
                     outlined
                     :rules="imageRule"
                   >
@@ -39,18 +74,6 @@
                       <v-chip small label color="pink accent-4">{{text}}</v-chip>
                     </template>
                   </v-file-input>
-                </v-col>
-
-                <v-col class="text-center" cols="12" sm="6">
-                  <h3 class="pb-2">Image Preview</h3>
-                  <v-avatar rounded v-if="product.image || imageUploaded" size="80">
-                    <img :src="product.image || imageUploaded" />
-                  </v-avatar>
-                  <v-progress-circular
-                    :rotate="360"
-                    :value="loadingValue"
-                    color="pink accent-4"
-                  >{{loadingValue}}</v-progress-circular>
                 </v-col>
               </v-row>
             </v-col>
@@ -119,7 +142,7 @@ export default {
         type: String
       },
       image: {
-        type: String
+        type: Object
       },
       description: {
         type: String
@@ -194,8 +217,17 @@ export default {
       this.dialog = false;
     },
 
-    updateProduct(updateProduct) {
+    updateProduct(current_product) {
       const isValid = this.$refs.productEditForm.validate();
+
+      const updateProduct = {
+        id: current_product.id,
+        name: current_product.name,
+        image: this.imageUploaded,
+        description: current_product.description,
+        price: current_product.price,
+        quantity: current_product.quantity
+      };
 
       if (isValid) {
         this.$store.dispatch('products/updateProduct', {
@@ -212,10 +244,24 @@ export default {
       }
     },
 
-    deleteImage(productImage) {
-      this.$store.dispatch('products/deleteImage', productImage);
+    deleteImage() {
+      if (this.product.image.url) {
+        this.$store.dispatch('products/deleteImage', this.product.image);
+      } else {
+        this.$store.dispatch('products/deleteImage', this.image);
+      }
+
+      this.product.image = {
+        name: null,
+        url: null
+      };
+
       this.image = [];
     }
+  },
+
+  created() {
+    this.image;
   }
 };
 </script>

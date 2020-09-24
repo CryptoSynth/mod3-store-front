@@ -1,7 +1,7 @@
 <template>
   <v-hover v-slot:default="{ hover }">
     <v-card d class="mx-auto rounded-xl" dark>
-      <v-img :aspect-ratio="13/10" :src="product.image">
+      <v-img :aspect-ratio="13/10" :src="product.image.url">
         <v-expand-transition>
           <div
             v-if="hover"
@@ -17,7 +17,7 @@
           :data-item-price="parseInt(product.price)"
           data-item-url="/"
           :data-item-description="product.description"
-          :data-item-image="product.image"
+          :data-item-image="product.image.url"
           :data-item-name="product.name"
           absolute
           color="pink accent-4"
@@ -48,7 +48,7 @@ export default {
         type: String
       },
       image: {
-        type: String
+        type: Object
       },
       description: {
         type: String

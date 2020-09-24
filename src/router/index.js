@@ -30,6 +30,10 @@ const routes = [
     meta: { requiresAuth: true },
     children: [
       {
+        path: 'home',
+        component: () => import('../views/AdminHome')
+      },
+      {
         path: 'products',
         component: () => import('../views/AdminProducts')
       }

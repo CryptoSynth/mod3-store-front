@@ -44,6 +44,12 @@ export default {
 
     items: [
       {
+        title: 'Home',
+        icon: 'mdi-home',
+        to: '/admin-dashboard/home',
+        tooltip: 'Edit your homepage'
+      },
+      {
         title: 'Products',
         icon: 'mdi-package',
         to: '/admin-dashboard/products',

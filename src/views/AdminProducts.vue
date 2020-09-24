@@ -14,7 +14,7 @@
             >
               <v-hover v-slot:default="{ hover }">
                 <v-card class="mx-auto rounded-xl" dark max-width="400">
-                  <v-img :aspect-ratio="16/9" :src="product.image">
+                  <v-img :aspect-ratio="16/9" :src="product.image.url">
                     <v-expand-transition>
                       <div
                         v-if="hover"
@@ -58,6 +58,18 @@
             </template>
           </v-snackbar>
         </v-container>
+      </template>
+
+      <template v-slot:no-data>
+        <v-col cols="12" sm="6" md="3" lg="4">
+          <v-sheet
+            color="transparent"
+            class="rounded-xl d-flex flex-column align-center justify-center"
+            height="350"
+          >
+            <ProductCreateButton />
+          </v-sheet>
+        </v-col>
       </template>
     </v-data-iterator>
   </div>

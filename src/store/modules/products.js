@@ -201,7 +201,10 @@ const actions = {
         async () => {
           //get image downloadURL
           const downloadURL = await imageTask.snapshot.ref.getDownloadURL();
-          commit('SET_UPLOADED_IMAGE', downloadURL);
+          commit('SET_UPLOADED_IMAGE', {
+            name: image.name,
+            url: downloadURL
+          });
         }
       );
     } catch (err) {

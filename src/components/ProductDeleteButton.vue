@@ -29,6 +29,9 @@ export default {
       name: {
         type: String
       },
+      image: {
+        type: Object
+      },
       description: {
         type: String
       },
@@ -51,7 +54,9 @@ export default {
     },
 
     deleteProduct(product) {
+      console.log(product);
       this.$store.dispatch('products/deleteProduct', product.id);
+      this.$store.dispatch('products/deleteImage', product.image);
       this.dialog = false;
     }
   }

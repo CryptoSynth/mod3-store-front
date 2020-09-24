@@ -47,7 +47,7 @@
                         class="rounded-lg elevation-8"
                         max-height="250px"
                         v-if="imageUploaded"
-                        :src="imageUploaded"
+                        :src="imageUploaded.url"
                       ></v-img>
                       <v-card-actions class="align-self-end" v-if="imageUploaded">
                         <v-btn class="mt-5" @click="deleteImage" color="red accent-4" dark rounded>
@@ -69,7 +69,6 @@
                   <v-col class="text-center" cols="12">
                     <v-file-input
                       v-if="!imageUploaded"
-                      clearable
                       v-model="image"
                       color="pink accent-4"
                       label="Upload Image"
@@ -78,7 +77,6 @@
                       @change="uploadImage"
                       outlined
                       :rules="imageRule"
-                      @click:clear="deleteImage"
                     >
                       <template #selection="{text}">
                         <v-chip small label color="pink accent-4">{{text}}</v-chip>
@@ -216,14 +214,14 @@ export default {
         this.$store.dispatch('products/createProduct', { newProduct });
 
         this.dialog = false;
-      }
 
-      //reset values after creating product
-      this.name = '';
-      this.$store.commit('products/CLEAR_UPLOADED_IMAGE');
-      this.description = '';
-      this.price = '';
-      this.quantity = '';
+        //reset values after creating product
+        this.name = '';
+        this.$store.commit('products/CLEAR_UPLOADED_IMAGE');
+        this.description = '';
+        this.price = '';
+        this.quantity = '';
+      }
     },
 
     uploadImage() {
