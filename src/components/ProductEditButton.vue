@@ -24,58 +24,11 @@
             </v-col>
 
             <v-col cols="12">
-              <v-row align="center" justify="center" no-gutters>
-                <v-col class="text-center" cols="12" sm="12">
-                  <v-card
-                    min-height="250"
-                    max-height="300"
-                    class="d-flex flex-column justify-center align-center absolute"
-                    flat
-                    v-if="loadingValue || product.image.url"
-                  >
-                    <v-img
-                      v-if="imageUploaded || product.image.url"
-                      class="rounded-lg elevation-8"
-                      max-height="250px"
-                      :src=" product.image.url || imageUploaded.url"
-                    ></v-img>
-                    <v-card-actions
-                      v-if="imageUploaded  ||  product.image.url"
-                      class="align-self-end"
-                    >
-                      <v-btn class="mt-5" @click="deleteImage" color="red accent-4" dark rounded>
-                        <v-icon>mdi-delete</v-icon>
-                      </v-btn>
-                    </v-card-actions>
-
-                    <v-progress-circular
-                      v-else
-                      :size="90"
-                      :width="9"
-                      :rotate="360"
-                      :value="loadingValue"
-                      color="pink accent-4"
-                    >{{loadingValue}}%</v-progress-circular>
-                  </v-card>
-                </v-col>
-
-                <v-col v-if="!imageUploaded  && !product.image.url" class="text-center" cols="12">
-                  <v-file-input
-                    v-model="image"
-                    color="pink accent-4"
-                    label="Upload Image"
-                    prepend-icon
-                    prepend-inner-icon="mdi-upload"
-                    @change="uploadImage"
-                    outlined
-                    :rules="imageRule"
-                  >
-                    <template #selection="{text}">
-                      <v-chip small label color="pink accent-4">{{text}}</v-chip>
-                    </template>
-                  </v-file-input>
-                </v-col>
-              </v-row>
+              <FormFileUpload
+                :loadingValue="loadingValue"
+                :existingFile="product.image"
+                :fileUploaded="fileUploaded"
+              />
             </v-col>
 
             <v-col cols="12">
@@ -129,6 +82,7 @@
 
 <script>
 import { mapState } from 'vuex';
+import FormFileUpload from '../components/FormFileUpload';
 
 export default {
   name: 'product-edit-button',
@@ -156,11 +110,12 @@ export default {
     }
   },
 
+  components: {
+    FormFileUpload
+  },
+
   data: () => ({
     dialog: false,
-
-    image: [],
-    imageRule: [v => !!v || 'Image is required'],
 
     name: '',
     nameRule: [
@@ -207,7 +162,7 @@ export default {
 
   computed: {
     ...mapState({
-      imageUploaded: state => state.products.imageUploaded,
+      fileUploaded: state => state.products.fileUploaded,
       loadingValue: state => state.products.loadingValue
     })
   },
@@ -218,12 +173,12 @@ export default {
     },
 
     updateProduct(current_product) {
-      const isValid = this.$refs.productEditForm.validate();
+      const isValid = this.$refs.productEditForm.validate(); //validate edit form
 
       const updateProduct = {
         id: current_product.id,
         name: current_product.name,
-        image: this.imageUploaded,
+        image: this.fileUploaded,
         description: current_product.description,
         price: current_product.price,
         quantity: current_product.quantity
@@ -234,34 +189,9 @@ export default {
           updateProduct
         });
 
-        this.dialog = false;
+        this.close(); // close dialog
       }
-    },
-
-    uploadImage() {
-      if (this.image) {
-        this.$store.dispatch('products/uploadImage', this.image);
-      }
-    },
-
-    deleteImage() {
-      if (this.product.image.url) {
-        this.$store.dispatch('products/deleteImage', this.product.image);
-      } else {
-        this.$store.dispatch('products/deleteImage', this.image);
-      }
-
-      this.product.image = {
-        name: null,
-        url: null
-      };
-
-      this.image = [];
     }
-  },
-
-  created() {
-    this.image;
   }
 };
 </script>

@@ -6,6 +6,7 @@
     <v-row class="fill-height" align="center" no-gutters>
       <v-col cols="12" md="6">
         <v-sheet
+          dark
           class="d-flex flex-column justify-space-around align-center pa-5 text-center"
           height="500px"
           color="transparent"

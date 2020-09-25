@@ -31,8 +31,8 @@ const STATUS = {
 
 const state = () => ({
   products: [],
-  imageUploaded: null,
-  loadingValue: 0,
+  fileUploaded: null,
+  loadingValue: -1,
   status: {}
 });
 
@@ -68,12 +68,12 @@ const mutations = {
     state.products.splice(productIndex, 1);
   },
 
-  SET_UPLOADED_IMAGE: (state, image) => {
-    state.imageUploaded = image;
+  SET_UPLOADED_FILE: (state, file) => {
+    state.fileUploaded = file;
   },
 
-  CLEAR_UPLOADED_IMAGE: state => {
-    state.imageUploaded = null;
+  CLEAR_UPLOADED_FILE: state => {
+    state.fileUploaded = null;
   },
 
   SET_LOADING_STATUS: (state, loadingValue) => {
@@ -169,40 +169,38 @@ const actions = {
   },
 
   //====================================================
-  //Upload image to firebase storage path -> /assets/images/
+  //Upload file to firebase storage path
   //====================================================
-  async uploadImage({ commit }, image) {
-    //image path reference
-    const imageRef = storage.ref().child(`assets/images/`);
+  async uploadFile({ commit }, file) {
+    //file path reference
+    const fileRef = storage.ref().child(`assets/images/`);
+
+    //check file type here  (R)
 
     try {
-      const imageTask = imageRef.child(`${image.name}`).put(image, {
-        contentType: image.type
+      const fileTask = fileRef.child(`${file.name}`).put(file, {
+        contentType: file.type
       });
 
-      imageTask.on(
+      fileTask.on(
         'state_changed',
         snapshot => {
           const progress =
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
 
           //if the image is done processing resolve the process with a message
-          console.log(progress);
           commit('SET_LOADING_STATUS', parseInt(progress)); //image loading
-
-          if (progress >= 100) {
-            console.log('Done processing image!');
-          }
         },
         err => {
           //reject any errors
           console.log(err);
         },
         async () => {
+          commit('SET_LOADING_STATUS', -1);
           //get image downloadURL
-          const downloadURL = await imageTask.snapshot.ref.getDownloadURL();
-          commit('SET_UPLOADED_IMAGE', {
-            name: image.name,
+          const downloadURL = await fileTask.snapshot.ref.getDownloadURL();
+          commit('SET_UPLOADED_FILE', {
+            name: file.name,
             url: downloadURL
           });
         }
@@ -214,19 +212,19 @@ const actions = {
   },
 
   //====================================================
-  //Delete image from firebase storage path -> /assets/images/
+  //Delete file from firebase storage path
   //====================================================
-  deleteImage({ commit }, image) {
-    const imageRef = storage.ref().child(`assets/images/`);
+  deleteFile({ commit }, file) {
+    const fileRef = storage.ref().child(`assets/images/`);
 
-    const imageTask = imageRef.child(`${image.name}`);
+    const fileTask = fileRef.child(`${file.name}`);
 
     // delete image from storage
-    imageTask
+    fileTask
       .delete()
       .then(() => {
-        commit('SET_LOADING_STATUS', 0);
-        commit('CLEAR_UPLOADED_IMAGE');
+        commit('SET_LOADING_STATUS', -1);
+        commit('CLEAR_UPLOADED_FILE');
       })
       .catch(err => {
         commit('SET_STATUS', STATUS.ERROR(err));

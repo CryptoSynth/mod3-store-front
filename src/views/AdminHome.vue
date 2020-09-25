@@ -1,33 +1,105 @@
 <template>
   <v-container fluid>
-    <h1>Edit your Home Page Here</h1>
     <v-row align="center" justify="center">
-      <v-col cols="12">
-        <v-form>
-          <h1>Form Here</h1>
-        </v-form>
-      </v-col>
+      <v-col cols="12" sm="6">
+        <v-card dark>
+          <v-card-title>Home Page Edit</v-card-title>
+          <v-card-text>
+            <v-form ref="homeForm">
+              <v-container>
+                <v-row align="center" justify="center">
+                  <v-col cols="12">
+                    <v-text-field
+                      color="pink accent-4"
+                      outlined
+                      label="Company Title"
+                      v-model="company.title"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-text-field
+                      color="pink accent-4"
+                      outlined
+                      label="Company Subtitle"
+                      v-model="company.subtitle"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-textarea
+                      auto-grow
+                      color="pink accent-4"
+                      outlined
+                      label="Company Description"
+                      v-model="company.description"
+                    ></v-textarea>
 
-      <v-col cols="12">
-        <video-background
-          :src="require('../assets/videos/brownie-rough.mp4')"
-          style="height: 84vh; border-radius: 5px"
-        >
-          <v-row class="fill-height" align="center" no-gutters>
-            <v-col cols="12" md="6">
-              <v-sheet
-                class="d-flex flex-column justify-space-around align-center pa-5 text-center"
-                height="500px"
-                color="transparent"
-              >
-                <h1 class="display-3">{{company.title}}</h1>
-                <h1 class="display-1">{{company.subtitle}}</h1>
-                <p>{{company.description}}</p>
-              </v-sheet>
-            </v-col>
+                    <!-- <v-col cols="12">
+              <v-row align="center" justify="center" no-gutters>
+                <v-col class="text-center" cols="12" sm="12">
+                  <v-card
+                    min-height="250"
+                    max-height="300"
+                    class="d-flex flex-column justify-center align-center absolute"
+                    flat
+                    v-if="loadingValue || product.image.url"
+                  >
+                    <v-img
+                      v-if="imageUploaded || product.image.url"
+                      class="rounded-lg elevation-8"
+                      max-height="250px"
+                      :src=" product.image.url || imageUploaded.url"
+                    ></v-img>
+                    <v-card-actions
+                      v-if="imageUploaded  ||  product.image.url"
+                      class="align-self-end"
+                    >
+                      <v-btn class="mt-5" @click="deleteImage" color="red accent-4" dark rounded>
+                        <v-icon>mdi-delete</v-icon>
+                      </v-btn>
+                    </v-card-actions>
+
+                    <v-progress-circular
+                      v-else
+                      :size="90"
+                      :width="9"
+                      :rotate="360"
+                      :value="loadingValue"
+                      color="pink accent-4"
+                    >{{loadingValue}}%</v-progress-circular>
+                  </v-card>
+                </v-col>
+
+                <v-col v-if="!imageUploaded  && !product.image.url" class="text-center" cols="12">
+                  <v-file-input
+                    v-model="image"
+                    color="pink accent-4"
+                    label="Upload Image"
+                    prepend-icon
+                    prepend-inner-icon="mdi-upload"
+                    @change="uploadImage"
+                    outlined
+                    :rules="imageRule"
+                  >
+                    <template #selection="{text}">
+                      <v-chip small label color="pink accent-4">{{text}}</v-chip>
+                    </template>
+                  </v-file-input>
+                </v-col>
+              </v-row>
+                    </v-col>-->
+                  </v-col>
+
+                  <v-col></v-col>
+                </v-row>
+              </v-container>
+            </v-form>
+          </v-card-text>
+
+          <v-card-actions>
             <v-spacer></v-spacer>
-          </v-row>
-        </video-background>
+            <v-btn color="green">Update</v-btn>
+          </v-card-actions>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>
