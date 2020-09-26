@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-app-bar dark app>
-      <h1 class="display-1">Brownie Inc.</h1>
+      <h3>{{companyInfo.title}}</h3>
       <v-spacer></v-spacer>
 
       <span v-if="userSnipcart">
@@ -19,7 +19,7 @@
       <div>
         <v-row>
           <v-col>
-            <HomeLanding :company="companyInfo" />
+            <HomeLanding :companyInfo="companyInfo" />
           </v-col>
         </v-row>
 
@@ -63,7 +63,8 @@ export default {
   },
 
   created() {
-    this.$store.dispatch('products/fetchProducts');
+    this.$store.dispatch('products/fetchProducts'); //get products
+    this.$store.dispatch('home/fetchCompanyInfo'); //get companyInfo
 
     // Snipcart.events.on('customer.signedin', customer => {
     //   this.$store.commit('usersSnipcart/SET_TOKEN', customer.sessionToken);

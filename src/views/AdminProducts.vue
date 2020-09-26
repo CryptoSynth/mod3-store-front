@@ -102,7 +102,7 @@ export default {
   },
 
   created() {
-    this.$store.dispatch('products/fetchProducts');
+    this.$store.dispatch('products/fetchProducts'); //get products
   }
 };
 </script>

@@ -1,4 +1,4 @@
-import { storage } from '../../services/firebase';
+import { db, storage } from '../../services/firebase';
 
 //ENUM status
 const STATUS = {
@@ -31,32 +31,58 @@ const STATUS = {
 
 const state = () => ({
   companyInfo: {
-    title: 'Brownie Inc.',
-    subtitle: 'Welcome!',
-    description:
-      "ELorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
+    title: null,
+    subtitle: null,
+    file: {},
+    description: null
   },
   fileUploaded: null,
-  loadingValue: -1
+  loadingValue: -1,
+  status: {}
 });
 
 const mutations = {
-  SET_COMPANY: (state, company) => {
-    state.company = company;
+  SET_COMPANY: (state, existingCompanyInfo) => {
+    state.companyInfo = existingCompanyInfo;
+  },
+
+  UPDATE_COMPANY: (state, updateCompanyInfo) => {
+    state.companyInfo = updateCompanyInfo;
+  },
+
+  SET_STATUS: (state, status) => {
+    state.status = status;
   }
 };
 
 const actions = {
-  fetchCompany({ commit }, company) {
-    commit('SET_COMPANY', company);
+  //====================================================
+  //Get companyInfo from firebase collection home
+  //====================================================
+  fetchCompanyInfo({ commit }) {
+    db.collection('home')
+      .get()
+      .then(res => {
+        res.forEach(companyInfo => {
+          commit('SET_COMPANY', companyInfo.data());
+        });
+      });
   },
 
-  setCompany({ commit }, company) {
-    commit('SET_COMPANY', company);
-  },
-
-  updateCompany({ commit }, company) {
-    commit('SET_COMPANY', company);
+  //====================================================
+  //Update companyInfo from firebase collection home
+  //====================================================
+  updateCompanyInfo({ commit }, updateCompanyInfo) {
+    db.collection('home')
+      .doc(updateCompanyInfo.id)
+      .update(updateCompanyInfo)
+      .then(() => {
+        commit('UPDATE_COMPANY', updateCompanyInfo); //update success status
+        commit('SET_STATUS', STATUS.SUCCESS('Company Info Updated!')); // Not showing up (R)
+      })
+      .catch(err => {
+        commit('SET_STATUS', STATUS.ERROR(err));
+      });
   },
 
   //====================================================
