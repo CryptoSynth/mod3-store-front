@@ -31,7 +31,7 @@
         v-if="loadingValue < 0"
         v-model="file"
         color="pink accent-4"
-        label="Upload Image"
+        :label="label"
         prepend-icon
         prepend-inner-icon="mdi-upload"
         @change="uploadFile"
@@ -63,11 +63,15 @@ export default {
     loadingValue: {
       type: Number
     },
+    label: {
+      type: String
+    },
     existingFile: {
       type: Object,
       default: () => {
         return {
           name: null,
+          type: null,
           url: null
         };
       }
@@ -86,7 +90,6 @@ export default {
     uploadFile() {
       if (this.file) {
         this.$store.dispatch('products/uploadFile', this.file);
-        this.file = null;
       }
     },
 

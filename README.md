@@ -1,8 +1,9 @@
 # mod3-store-front To-Do
 - set rules for firebase database accessing
 - format price to get valadation for both AdminEditButton & AdminCreateButton
-- change img to object and set it with props (name & url), go back and fix
-- redo clear/delete image logic 
+- think of logic for when user clicks cancel
+- fix reuploading causes image preview in create 
+- fix file label stays in text-field after creating a product
 
 
 ## Project scripts 

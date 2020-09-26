@@ -34,7 +34,11 @@
               </v-col>
 
               <v-col cols="12">
-                <FormFileUpload :loadingValue="loadingValue" :fileUploaded="fileUploaded" />
+                <FormFileUpload
+                  :label="'Upload Image'"
+                  :loadingValue="loadingValue"
+                  :fileUploaded="fileUploaded"
+                />
               </v-col>
 
               <v-col cols="12">

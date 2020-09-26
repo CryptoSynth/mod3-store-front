@@ -73,7 +73,9 @@ const mutations = {
   },
 
   CLEAR_UPLOADED_FILE: state => {
+    console.log(state.fileUploaded);
     state.fileUploaded = null;
+    console.log(state.fileUploaded);
   },
 
   SET_LOADING_STATUS: (state, loadingValue) => {
@@ -172,12 +174,24 @@ const actions = {
   //Upload file to firebase storage path
   //====================================================
   async uploadFile({ commit }, file) {
-    //file path reference
-    const fileRef = storage.ref().child(`assets/images/`);
+    const type = file.type.split('/')[0];
 
-    //check file type here  (R)
+    //base on type choose file reference
+    let fileRef;
+
+    switch (type) {
+      case 'image':
+        fileRef = storage.ref().child(`assets/images/store`);
+        break;
+      case 'video':
+        fileRef = storage.ref().child(`assets/videos/store`);
+        break;
+      default:
+        console.log('Default actions here');
+    }
 
     try {
+      console.log(fileRef);
       const fileTask = fileRef.child(`${file.name}`).put(file, {
         contentType: file.type
       });
@@ -201,6 +215,7 @@ const actions = {
           const downloadURL = await fileTask.snapshot.ref.getDownloadURL();
           commit('SET_UPLOADED_FILE', {
             name: file.name,
+            type: file.type,
             url: downloadURL
           });
         }
@@ -215,7 +230,21 @@ const actions = {
   //Delete file from firebase storage path
   //====================================================
   deleteFile({ commit }, file) {
-    const fileRef = storage.ref().child(`assets/images/`);
+    const type = file.type.split('/')[0];
+
+    //base on type choose file reference
+    let fileRef;
+
+    switch (type) {
+      case 'image':
+        fileRef = storage.ref().child(`assets/images/store`);
+        break;
+      case 'video':
+        fileRef = storage.ref().child(`assets/videos/store`);
+        break;
+      default:
+        console.log('Default actions here');
+    }
 
     const fileTask = fileRef.child(`${file.name}`);
 

@@ -25,6 +25,7 @@
 
             <v-col cols="12">
               <FormFileUpload
+                :label="'Upload Image'"
                 :loadingValue="loadingValue"
                 :existingFile="product.image"
                 :fileUploaded="fileUploaded"

@@ -19,7 +19,7 @@
       <div>
         <v-row>
           <v-col>
-            <ProductVideo />
+            <HomeLanding :company="companyInfo" />
           </v-col>
         </v-row>
 
@@ -37,7 +37,7 @@
 
 <script>
 import ProductCard from '../components/ProductCard';
-import ProductVideo from '../components/ProductVideo';
+import HomeLanding from '../components/HomeLanding';
 import { mapState } from 'vuex';
 
 export default {
@@ -45,13 +45,14 @@ export default {
 
   components: {
     ProductCard,
-    ProductVideo
+    HomeLanding
   },
 
   computed: {
     ...mapState({
       products: state => state.products.products,
-      userSnipcart: state => state.usersSnipcart.user
+      userSnipcart: state => state.usersSnipcart.user,
+      companyInfo: state => state.home.companyInfo
     })
   },
 
