@@ -60,9 +60,6 @@ export default {
         type: String
       }
     }
-  },
-  created() {
-    console.log('Product');
   }
 };
 </script>

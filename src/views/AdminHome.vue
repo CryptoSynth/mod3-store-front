@@ -57,15 +57,6 @@
         </v-card>
       </v-col>
     </v-row>
-
-    <v-snackbar :timeout="-1" v-model="status.active" bottom :color="status.color">
-      {{ status.msg }}
-      <template v-slot:action="{ attrs }">
-        <v-btn v-bind="attrs" class="ml-3" x-small dark fab @click="status.active = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
   </v-container>
 </template>
 
@@ -84,15 +75,13 @@ export default {
     ...mapState({
       fileUploaded: state => state.home.fileUploaded,
       loadingValue: state => state.home.loadingValue,
-      companyInfo: state => state.home.companyInfo,
-      status: state => state.products.status
+      companyInfo: state => state.home.companyInfo
     })
   },
 
   methods: {
     updateCompanyInfo() {
       console.log(this.companyInfo);
-
       this.$store.dispatch('home/updateCompanyInfo', this.companyInfo);
     }
   },

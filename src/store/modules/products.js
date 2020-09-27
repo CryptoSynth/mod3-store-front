@@ -33,7 +33,7 @@ const state = () => ({
   products: [],
   fileUploaded: null,
   loadingValue: -1,
-  status: {}
+  status: null
 });
 
 const mutations = {
@@ -91,22 +91,25 @@ const actions = {
   //====================================================
   //Get product from firebase collection products
   //====================================================
-  fetchProducts({ commit, state }) {
-    db.collection('products')
-      .orderBy('price')
-      .get()
-      .then(res => {
-        res.forEach(products => {
-          let product = {
-            id: products.id,
-            ...products.data()
-          };
+  async fetchProducts({ commit, state }) {
+    try {
+      const products = await db
+        .collection('products')
+        .orderBy('price')
+        .get();
 
-          if (state.products.length < res.size) {
-            commit('SET_PRODUCTS', product);
-          }
-        });
+      products.forEach(product => {
+        if (state.products.length < products.size) {
+          commit('SET_PRODUCTS', {
+            id: product.id,
+            ...product.data()
+          });
+          console.log('Products set.');
+        }
       });
+    } catch (err) {
+      console.log(err);
+    }
   },
 
   //====================================================

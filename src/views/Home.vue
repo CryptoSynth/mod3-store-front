@@ -1,43 +1,46 @@
 <template>
   <div>
-    <v-app-bar dark app>
-      <h3>{{companyInfo.title}}</h3>
-      <v-spacer></v-spacer>
+    <HomeLoading v-if="isLoading" />
 
-      <span v-if="userSnipcart">
-        <v-btn class="mr-3" color="red" text @click="logout">Logout</v-btn>
-      </span>
+    <span v-else>
+      <v-app-bar dark app>
+        <h3>{{companyInfo.title}}</h3>
+        <v-spacer></v-spacer>
 
-      <v-btn v-else class="snipcart-customer-signin mr-3" color="pink accent-4">Login</v-btn>
+        <span v-if="userSnipcart">
+          <v-btn class="mr-3" color="red" text @click="logout">Logout</v-btn>
+        </span>
 
-      <v-btn color="pink accent-4" class="snipcart-checkout">
-        <v-icon>mdi-cart</v-icon>
-      </v-btn>
-    </v-app-bar>
+        <v-btn v-else class="snipcart-customer-signin mr-3" color="pink accent-4">Login</v-btn>
 
-    <v-container fluid>
-      <div>
-        <v-row>
-          <v-col>
+        <v-btn color="pink accent-4" class="snipcart-checkout">
+          <v-icon>mdi-cart</v-icon>
+        </v-btn>
+      </v-app-bar>
+
+      <v-container fluid>
+        <v-row align="center" justify="center">
+          <v-col cols="12">
             <HomeLanding :companyInfo="companyInfo" />
           </v-col>
         </v-row>
+      </v-container>
 
-        <v-container fluid>
-          <v-row justify="center">
-            <v-col v-for="(product, index) in products" :key="index" cols="12" sm="6" md="4" lg="3">
-              <ProductCard :product="product" />
-            </v-col>
-          </v-row>
-        </v-container>
-      </div>
-    </v-container>
+      <v-container fluid>
+        <v-row justify="center" align="center">
+          <v-col v-for="(product, index) in products" :key="index" cols="12" sm="6" md="3">
+            <ProductCard :product="product" />
+          </v-col>
+        </v-row>
+      </v-container>
+    </span>
   </div>
 </template>
 
 <script>
 import ProductCard from '../components/ProductCard';
 import HomeLanding from '../components/HomeLanding';
+import HomeLoading from '../components/HomeLoading';
 import { mapState } from 'vuex';
 
 export default {
@@ -45,8 +48,13 @@ export default {
 
   components: {
     ProductCard,
-    HomeLanding
+    HomeLanding,
+    HomeLoading
   },
+
+  data: () => ({
+    isLoading: true
+  }),
 
   computed: {
     ...mapState({
@@ -62,9 +70,15 @@ export default {
     }
   },
 
-  created() {
-    this.$store.dispatch('products/fetchProducts'); //get products
-    this.$store.dispatch('home/fetchCompanyInfo'); //get companyInfo
+  async created() {
+    try {
+      await this.$store.dispatch('products/fetchProducts'); //get products
+      await this.$store.dispatch('home/fetchCompanyInfo'); //get companyInfo
+      // this.isLoading = false; //fetches have finished loading
+      console.log('Done loading!');
+    } catch (err) {
+      console.log(err);
+    }
 
     // Snipcart.events.on('customer.signedin', customer => {
     //   this.$store.commit('usersSnipcart/SET_TOKEN', customer.sessionToken);

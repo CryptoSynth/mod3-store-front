@@ -30,15 +30,10 @@ const STATUS = {
 };
 
 const state = () => ({
-  companyInfo: {
-    title: null,
-    subtitle: null,
-    file: {},
-    description: null
-  },
+  companyInfo: null,
   fileUploaded: null,
   loadingValue: -1,
-  status: {}
+  status: null
 });
 
 const mutations = {
@@ -59,14 +54,17 @@ const actions = {
   //====================================================
   //Get companyInfo from firebase collection home
   //====================================================
-  fetchCompanyInfo({ commit }) {
-    db.collection('home')
-      .get()
-      .then(res => {
-        res.forEach(companyInfo => {
-          commit('SET_COMPANY', companyInfo.data());
-        });
+  async fetchCompanyInfo({ commit }) {
+    try {
+      const home = await db.collection('home').get();
+
+      home.forEach(companyInfo => {
+        commit('SET_COMPANY', companyInfo.data());
+        console.log('Company Set.');
       });
+    } catch (err) {
+      console.log(err);
+    }
   },
 
   //====================================================
