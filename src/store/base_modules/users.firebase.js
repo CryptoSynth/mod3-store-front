@@ -12,7 +12,7 @@ const mutations = {
 };
 
 const actions = {
-  login({ commit }, payload) {
+  login({ commit, dispatch }, payload) {
     const { email, password } = payload;
 
     auth
@@ -22,12 +22,15 @@ const actions = {
         router.push('/admin-dashboard');
       })
       .catch(err => {
-        const { code, message } = err;
-        console.log(`${code}: ${message}`);
+        dispatch(
+          'services/notifications/setStatus',
+          { type: 'error', message: err },
+          { root: true }
+        );
       });
   },
 
-  signout({ commit }) {
+  signout({ commit, dispatch }) {
     auth
       .signOut()
       .then(() => {
@@ -35,8 +38,11 @@ const actions = {
         router.push('/admin-login');
       })
       .catch(err => {
-        const { code, message } = err;
-        console.log(`${code}: ${message}`);
+        dispatch(
+          'services/notifications/setStatus',
+          { type: 'error', message: err },
+          { root: true }
+        );
       });
   }
 };

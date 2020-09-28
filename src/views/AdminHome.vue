@@ -2,7 +2,9 @@
   <v-container fluid>
     <v-row class="fill-height" align="center" justify="center">
       <v-col cols="12" md="8">
-        <v-card dark>
+        <v-skeleton-loader v-if="isLoading" type="card, actions" loading></v-skeleton-loader>
+
+        <v-card v-else dark>
           <v-card-title>Home Page Edit</v-card-title>
           <v-card-text>
             <v-form ref="homeForm">
@@ -71,6 +73,10 @@ export default {
     FormFileUpload
   },
 
+  data: () => ({
+    isLoading: true
+  }),
+
   computed: {
     ...mapState({
       fileUploaded: state => state.home.fileUploaded,
@@ -81,13 +87,17 @@ export default {
 
   methods: {
     updateCompanyInfo() {
-      console.log(this.companyInfo);
       this.$store.dispatch('home/updateCompanyInfo', this.companyInfo);
     }
   },
 
-  created() {
-    this.$store.dispatch('home/fetchCompanyInfo'); //get companyInfo
+  async created() {
+    try {
+      await this.$store.dispatch('home/fetchCompanyInfo'); //get companyInfo
+      this.isLoading = false; //fetches have finished loading
+    } catch (err) {
+      console.log(err);
+    }
   }
 };
 </script>

@@ -1,10 +1,10 @@
 <template>
   <div>
-    <HomeLoading v-if="isLoading" />
-
-    <span v-else>
+    <span>
       <v-app-bar dark app>
-        <h3>{{companyInfo.title}}</h3>
+        <v-skeleton-loader v-if="isLoading" type="avatar" loading></v-skeleton-loader>
+        <h3 v-else>{{companyInfo.title}}</h3>
+
         <v-spacer></v-spacer>
 
         <span v-if="userSnipcart">
@@ -21,7 +21,9 @@
       <v-container fluid>
         <v-row align="center" justify="center">
           <v-col cols="12">
-            <HomeLanding :companyInfo="companyInfo" />
+            <v-skeleton-loader type="image" :loading="isLoading">
+              <HomeLanding :companyInfo="companyInfo" />
+            </v-skeleton-loader>
           </v-col>
         </v-row>
       </v-container>
@@ -29,7 +31,9 @@
       <v-container fluid>
         <v-row justify="center" align="center">
           <v-col v-for="(product, index) in products" :key="index" cols="12" sm="6" md="3">
-            <ProductCard :product="product" />
+            <v-skeleton-loader type="card" :loading="isLoading">
+              <ProductCard :product="product" />
+            </v-skeleton-loader>
           </v-col>
         </v-row>
       </v-container>
@@ -40,7 +44,6 @@
 <script>
 import ProductCard from '../components/ProductCard';
 import HomeLanding from '../components/HomeLanding';
-import HomeLoading from '../components/HomeLoading';
 import { mapState } from 'vuex';
 
 export default {
@@ -48,8 +51,7 @@ export default {
 
   components: {
     ProductCard,
-    HomeLanding,
-    HomeLoading
+    HomeLanding
   },
 
   data: () => ({
@@ -74,16 +76,18 @@ export default {
     try {
       await this.$store.dispatch('products/fetchProducts'); //get products
       await this.$store.dispatch('home/fetchCompanyInfo'); //get companyInfo
-      // this.isLoading = false; //fetches have finished loading
-      console.log('Done loading!');
+
+      this.isLoading = false; //fetches have finished loading
     } catch (err) {
       console.log(err);
     }
 
     // Snipcart.events.on('customer.signedin', customer => {
     //   this.$store.commit('usersSnipcart/SET_TOKEN', customer.sessionToken);
-    //   this.$store.dispatch('usersSnipcart/getUserSession');
+    //   this.$store.dispatch('service/usersSnipcart/getUserSession');
     // });
   }
 };
 </script>
+
+<style lang="stylus" scoped></style>

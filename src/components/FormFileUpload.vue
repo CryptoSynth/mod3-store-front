@@ -89,14 +89,14 @@ export default {
   methods: {
     uploadFile() {
       if (this.file) {
-        this.$store.dispatch('products/uploadFile', this.file);
+        this.$store.dispatch('services/uploads/uploadFile', this.file);
       }
     },
 
     deleteFile() {
       const fileToUpload = this.file || this.existingFile;
 
-      this.$store.dispatch('products/deleteFile', fileToUpload);
+      this.$store.dispatch('services/uploads/deleteFile', fileToUpload);
 
       this.file = null;
       this.existingFile.url = null;

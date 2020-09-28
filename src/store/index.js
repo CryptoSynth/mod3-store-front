@@ -1,9 +1,10 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import home from './modules/home';
-import products from './modules/products';
-import usersSnipcart from './modules/users.snipcart';
-import usersFirebase from './modules/users.firebase';
+import home from './base_modules/home';
+import products from './base_modules/products';
+import usersSnipcart from './base_modules/users.snipcart';
+import usersFirebase from './base_modules/users.firebase';
+import services from './base_modules/services';
 
 Vue.use(Vuex);
 
@@ -12,6 +13,7 @@ export default new Vuex.Store({
     home,
     products,
     usersSnipcart,
-    usersFirebase
+    usersFirebase,
+    services
   }
 });

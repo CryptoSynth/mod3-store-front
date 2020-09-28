@@ -163,8 +163,8 @@ export default {
 
   computed: {
     ...mapState({
-      fileUploaded: state => state.products.fileUploaded,
-      loadingValue: state => state.products.loadingValue
+      fileUploaded: state => state.services.uploads.fileUploaded,
+      loadingValue: state => state.services.progress.loadingValue
     })
   },
 
@@ -176,10 +176,12 @@ export default {
     updateProduct(current_product) {
       const isValid = this.$refs.productEditForm.validate(); //validate edit form
 
+      console.log(current_product);
+
       const updateProduct = {
         id: current_product.id,
         name: current_product.name,
-        image: this.fileUploaded,
+        image: this.fileUploaded || this.current_product,
         description: current_product.description,
         price: current_product.price,
         quantity: current_product.quantity

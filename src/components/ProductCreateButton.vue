@@ -146,8 +146,8 @@ export default {
 
   computed: {
     ...mapState({
-      fileUploaded: state => state.products.fileUploaded,
-      loadingValue: state => state.products.loadingValue
+      fileUploaded: state => state.services.uploads.fileUploaded,
+      loadingValue: state => state.services.progress.loadingValue
     })
   },
 
@@ -175,7 +175,7 @@ export default {
 
         //reset values after creating product
         this.name = '';
-        this.$store.commit('products/CLEAR_UPLOADED_FILE');
+        this.$store.commit('uploads/CLEAR_UPLOADED_FILE');
         this.description = '';
         this.price = '';
         this.quantity = '';

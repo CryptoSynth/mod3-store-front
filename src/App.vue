@@ -2,16 +2,27 @@
   <v-app dark>
     <v-main class="background">
       <router-view></router-view>
+
+      <Notification v-if="status" :status="status" />
     </v-main>
   </v-app>
 </template>
 
 <script>
+import { mapState } from 'vuex';
+import Notification from './components/Notification';
+
 export default {
   name: 'App',
 
-  created() {
-    console.log('App created!');
+  components: {
+    Notification
+  },
+
+  computed: {
+    ...mapState({
+      status: state => state.services.notifications.status
+    })
   }
 };
 </script>

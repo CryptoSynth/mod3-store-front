@@ -26,7 +26,7 @@ const mutations = {
 };
 
 const actions = {
-  getUserSession({ commit, state }) {
+  getUserSession({ commit, state, dispatch }) {
     //if user is currently logged in
     if (state.token) {
       axios
@@ -37,10 +37,18 @@ const actions = {
           commit('SET_USER', res.data);
         })
         .catch(err => {
-          console.log(err);
+          dispatch(
+            'services/notifications/setStatus',
+            { type: 'error', message: err },
+            { root: true }
+          );
         });
     } else {
-      console.log('User is not logged in!');
+      dispatch(
+        'services/notifications/setStatus',
+        { type: 'error', message: new Error('User is not signed in!') },
+        { root: true }
+      );
     }
   },
 
