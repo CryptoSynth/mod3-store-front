@@ -6,7 +6,7 @@
       </v-btn>
     </template>
     <v-card dark>
-      <v-card-title class="headline">{{product.name}} Menu</v-card-title>
+      <v-card-title class="headline">{{ product.name }} Menu</v-card-title>
       <v-card-text>
         <v-form ref="productEditForm">
           <v-row justify="center" align="center">
@@ -29,6 +29,7 @@
                 :loadingValue="loadingValue"
                 :existingFile="product.image"
                 :fileUploaded="fileUploaded"
+                :product="product"
               />
             </v-col>
 
@@ -75,7 +76,9 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="red darken-1" text @click="close">Cancel</v-btn>
-        <v-btn color="green darken-1" text @click="updateProduct(product)">Update</v-btn>
+        <v-btn color="green darken-1" text @click="updateProduct(product)"
+          >Update</v-btn
+        >
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -170,29 +173,30 @@ export default {
 
   methods: {
     close() {
+      //reset image if user cancel out of menu
+      if (this.fileUploaded) {
+        this.$store.dispatch('services/uploads/deleteFile', this.fileUploaded);
+      }
+
       this.dialog = false;
     },
 
     updateProduct(current_product) {
       const isValid = this.$refs.productEditForm.validate(); //validate edit form
 
-      console.log(current_product);
-
       const updateProduct = {
         id: current_product.id,
         name: current_product.name,
-        image: this.fileUploaded || this.current_product,
+        image: this.fileUploaded || current_product.image,
         description: current_product.description,
         price: current_product.price,
         quantity: current_product.quantity
       };
 
       if (isValid) {
-        this.$store.dispatch('products/updateProduct', {
-          updateProduct
-        });
+        this.$store.dispatch('products/updateProduct', updateProduct);
 
-        this.close(); // close dialog
+        this.dialog = false; // close dialog
       }
     }
   }

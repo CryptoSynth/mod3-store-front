@@ -69,9 +69,7 @@ const actions = {
   //====================================================
   //Create new Products from firebase collection products
   //====================================================
-  createProduct({ commit, dispatch }, payload) {
-    let { newProduct } = payload;
-
+  createProduct({ commit, dispatch }, newProduct) {
     //generate doc ref
     const docRef = db.collection('products').doc();
 
@@ -104,9 +102,7 @@ const actions = {
   //====================================================
   //Update products from firebase collection products
   //====================================================
-  updateProduct({ commit, dispatch }, payload) {
-    const { updateProduct } = payload;
-
+  updateProduct({ commit, dispatch }, updateProduct) {
     db.collection('products')
       .doc(updateProduct.id)
       .update(updateProduct)

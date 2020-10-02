@@ -7,13 +7,11 @@
   - fix reuploading causes image preview in create 
   - fix file label stays in text-field after creating a product
   - fix issue when image is loading with creating another product 
-  - 
+  
 - Admin Login Component 
   - add a snack notification for admin login 
     - add error handling from firebase authentication attempts  
     - add loading logic for login button  
-
-
 
 
 ## Project scripts:

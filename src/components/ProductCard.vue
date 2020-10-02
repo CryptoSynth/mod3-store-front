@@ -1,13 +1,18 @@
 <template>
   <v-hover v-slot:default="{ hover }">
     <v-card d class="mx-auto rounded-xl" dark>
-      <v-img :aspect-ratio="13/10" :src="product.image.url">
+      <v-img
+        :aspect-ratio="13 / 10"
+        :src="product.image.url || require('../assets/images/no-image-box.png')"
+      >
         <v-expand-transition>
           <div
             v-if="hover"
             class="d-flex transition-fast-in-fast-out pink accent-4 darken-2 v-card--reveal display-1 white--text"
             style="height: 100%;"
-          >{{product.name}}</div>
+          >
+            {{ product.name }}
+          </div>
         </v-expand-transition>
       </v-img>
       <v-card-text class="pt-6" style="position: relative;">
@@ -28,8 +33,12 @@
         >
           <v-icon>mdi-cart</v-icon>
         </v-btn>
-        <h3 class="display-1 font-weight-light pink--text accent-4 mb-2">${{product.price}}</h3>
-        <div class="font-weight-light title mb-2">{{product.description}}</div>
+        <h3 class="display-1 font-weight-light pink--text accent-4 mb-2">
+          ${{ product.price }}
+        </h3>
+        <div class="font-weight-light title mb-2">
+          {{ product.description }}
+        </div>
       </v-card-text>
     </v-card>
   </v-hover>

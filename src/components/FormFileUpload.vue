@@ -2,8 +2,12 @@
   <v-row align="center" justify="center">
     <!--File Preview-->
 
-    <v-col v-if="fileUploaded || existingFile.url" class="text-center" cols="12">
-      <v-card flat color="transparent" max-height="300">
+    <v-col
+      v-if="fileUploaded || existingFile.url"
+      class="text-center"
+      cols="12"
+    >
+      <v-card flat color="transparent" height="300" max-height="300">
         <v-row align="center" justify="center">
           <v-col cols="12">
             <v-row align="center" justify="center" no-gutters>
@@ -15,7 +19,13 @@
                 ></v-img>
               </v-col>
               <v-col class="text-center" cols="12" sm="2">
-                <v-btn class="mt-5" @click="deleteFile" color="red accent-4" fab dark>
+                <v-btn
+                  class="mt-5"
+                  @click="deleteFile"
+                  color="red accent-4"
+                  fab
+                  dark
+                >
                   <v-icon>mdi-delete</v-icon>
                 </v-btn>
               </v-col>
@@ -39,7 +49,7 @@
         :rules="fileRule"
       >
         <template #selection="{text}">
-          <v-chip small label color="pink accent-4">{{text}}</v-chip>
+          <v-chip small label color="pink accent-4">{{ text }}</v-chip>
         </template>
       </v-file-input>
 
@@ -50,7 +60,8 @@
         :rotate="360"
         :value="loadingValue"
         color="pink accent-4"
-      >{{loadingValue}}%</v-progress-circular>
+        >{{ loadingValue }}%</v-progress-circular
+      >
     </v-col>
   </v-row>
 </template>
@@ -78,6 +89,9 @@ export default {
     },
     fileUploaded: {
       type: Object
+    },
+    product: {
+      type: Object
     }
   },
 
@@ -90,13 +104,17 @@ export default {
     uploadFile() {
       if (this.file) {
         this.$store.dispatch('services/uploads/uploadFile', this.file);
+        this.file = null;
       }
     },
 
     deleteFile() {
       const fileToUpload = this.file || this.existingFile;
 
-      this.$store.dispatch('services/uploads/deleteFile', fileToUpload);
+      this.$store.dispatch('services/uploads/deleteFile', {
+        file: fileToUpload,
+        product: this.product
+      });
 
       this.file = null;
       this.existingFile.url = null;

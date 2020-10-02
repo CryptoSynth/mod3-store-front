@@ -48,7 +48,9 @@ const actions = {
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
 
           //if the image is done processing resolve the process with a message
-          dispatch('services/uploads/setProgress', parseInt(progress));
+          dispatch('services/progress/setProgress', parseInt(progress), {
+            root: true
+          });
         },
         err => {
           //reject any errors
@@ -59,7 +61,7 @@ const actions = {
           );
         },
         async () => {
-          dispatch('services/uploads/setProgress', -1);
+          dispatch('services/progress/setProgress', -1, { root: true });
 
           //get image downloadURL
           const downloadURL = await fileTask.snapshot.ref.getDownloadURL();
@@ -82,7 +84,11 @@ const actions = {
   //====================================================
   //Delete file from firebase storage path
   //====================================================
-  deleteFile({ commit, dispatch }, file) {
+  async deleteFile({ commit, dispatch }, payload) {
+    const { file, product } = payload;
+
+    console.log(payload);
+
     const type = file.type.split('/')[0];
 
     //base on type choose file reference
@@ -102,19 +108,44 @@ const actions = {
     const fileTask = fileRef.child(`${file.name}`);
 
     // delete image from storage
-    fileTask
-      .delete()
-      .then(() => {
-        dispatch('services/uploads/setProgress', -1);
-        commit('CLEAR_UPLOADED_FILE');
-      })
-      .catch(err => {
-        dispatch(
-          'services/notifications/setStatus',
-          { type: 'error', message: err },
-          { root: true }
-        );
+    try {
+      await fileTask.delete();
+
+      //delete product image in firebase database
+      const updateProduct = {
+        id: product.id,
+        name: product.name,
+        image: {
+          name: null,
+          type: null,
+          url: null
+        },
+        description: product.description,
+        price: product.price,
+        quantity: product.quantity
+      };
+
+      dispatch('products/updateProduct', updateProduct, {
+        root: true
       });
+
+      //end progress
+      dispatch('services/progress/setProgress', -1, { root: true });
+      commit('CLEAR_UPLOADED_FILE');
+    } catch (err) {
+      dispatch(
+        'services/notifications/setStatus',
+        { type: 'error', message: err },
+        { root: true }
+      );
+    }
+  },
+
+  //====================================================
+  //Clear file from local variable
+  //====================================================
+  clearFile({ commit }) {
+    commit('CLEAR_UPLOADED_FILE');
   }
 };
 

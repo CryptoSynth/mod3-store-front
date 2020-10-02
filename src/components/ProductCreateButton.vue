@@ -5,7 +5,14 @@
         <v-tooltip top>
           <template #activator="{ on }">
             <v-sheet color="transparent">
-              <v-btn light x-large fab color="cyan accent-2" v-on="on" @click.stop="dialog = true">
+              <v-btn
+                light
+                x-large
+                fab
+                color="cyan accent-2"
+                v-on="on"
+                @click.stop="dialog = true"
+              >
                 <v-icon>mdi-plus</v-icon>
               </v-btn>
             </v-sheet>
@@ -85,7 +92,9 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="red darken-1" text @click="close">Cancel</v-btn>
-          <v-btn color="green darken-1" text @click="createProduct">Create</v-btn>
+          <v-btn color="green darken-1" text @click="createProduct"
+            >Create</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -153,6 +162,15 @@ export default {
 
   methods: {
     close() {
+      //if user cancel while image is uploaded then delete image & reset fields
+
+      console.log(this.fileUploaded);
+
+      if (this.fileUploaded) {
+        this.$store.dispatch('services/uploads/deleteFile', this.fileUploaded);
+      }
+
+      this.$refs.productCreateForm.reset(); //reset form
       this.dialog = false;
     },
 
@@ -168,17 +186,10 @@ export default {
           quantity: this.quantity
         };
 
-        this.$store.dispatch('products/createProduct', { newProduct });
+        this.$store.dispatch('products/createProduct', newProduct);
         this.$refs.productCreateForm.reset(); //reset form
 
-        this.close(); // close dialog
-
-        //reset values after creating product
-        this.name = '';
-        this.$store.commit('uploads/CLEAR_UPLOADED_FILE');
-        this.description = '';
-        this.price = '';
-        this.quantity = '';
+        this.dialog = false; // close dialog
       }
     }
   }
