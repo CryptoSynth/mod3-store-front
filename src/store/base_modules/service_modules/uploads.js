@@ -1,21 +1,70 @@
 import { storage } from '../../../services/firebase';
 
 const state = () => ({
+  filePreview: null,
   fileUploaded: null
 });
 
 const mutations = {
-  SET_UPLOADED_FILE: (state, file) => {
-    state.fileUploaded = file;
+  SET_PREVIEW_FILE: (state, file) => {
+    state.filePreview = file;
   },
 
-  CLEAR_UPLOADED_FILE: state => {
-    state.fileUploaded = null;
+  CLEAR_PREVIEW_FILE: state => {
+    state.filePreview = null;
+  },
+
+  SET_UPLOADED_FILE: (state, file) => {
+    state.fileUploaded = file;
   }
 };
 
 const actions = {
   //====================================================
+  //Preview Image using a FileReader API
+  //====================================================
+  previewFile({ commit, dispatch }, file) {
+    let progress = 0;
+
+    //create reader instance from FileReader object
+    let reader = new FileReader();
+
+    //Set reader to read file as a url
+    reader.readAsDataURL(file);
+
+    //during progress track file uploaded status
+    reader.onprogress = e => {
+      progress = (e.loaded / e.total) * 100; //progress as a %
+    };
+
+    //after completion set uploaded file
+    reader.onload = () => {
+      //if the file has finished loading then set fileUploaded
+      if (progress === 100) {
+        commit('services/progress/setProgress', false, { root: true }); //finished loading
+        commit('SET_UPLOADED_FILE', reader.result);
+      }
+    };
+
+    //catch any error during uploading file
+    reader.onerror = () => {
+      console.log(reader.error);
+      dispatch(
+        'services/notifications/setStatus',
+        { type: 'error', message: reader.error },
+        { root: true }
+      );
+    };
+  },
+
+  //====================================================
+  //Clear Image Preview using a FileReader API
+  //====================================================
+  clearPreviewFile({ commit }) {
+    commit('CLEAR_PREVIEW_FILE');
+  },
+
+  // ====================================================
   //Upload file to firebase storage path
   //====================================================
   async uploadFile({ commit, dispatch }, file) {
@@ -43,12 +92,9 @@ const actions = {
 
       fileTask.on(
         'state_changed',
-        snapshot => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-
-          //if the image is done processing resolve the process with a message
-          dispatch('services/progress/setProgress', parseInt(progress), {
+        () => {
+          //start loading event
+          dispatch('services/progress/setProgress', true, {
             root: true
           });
         },
@@ -61,7 +107,8 @@ const actions = {
           );
         },
         async () => {
-          dispatch('services/progress/setProgress', -1, { root: true });
+          //stop loading event
+          dispatch('services/progress/setProgress', false, { root: true });
 
           //get image downloadURL
           const downloadURL = await fileTask.snapshot.ref.getDownloadURL();
@@ -86,8 +133,6 @@ const actions = {
   //====================================================
   async deleteFile({ commit, dispatch }, payload) {
     const { file, product } = payload;
-
-    console.log(payload);
 
     const type = file.type.split('/')[0];
 
@@ -139,13 +184,6 @@ const actions = {
         { root: true }
       );
     }
-  },
-
-  //====================================================
-  //Clear file from local variable
-  //====================================================
-  clearFile({ commit }) {
-    commit('CLEAR_UPLOADED_FILE');
   }
 };
 

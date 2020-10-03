@@ -1,7 +1,6 @@
 <template>
   <v-row align="center" justify="center">
-    <!--File Preview-->
-
+    <!-- File Preview-->
     <v-col
       v-if="fileUploaded || existingFile.url"
       class="text-center"
@@ -15,18 +14,18 @@
                 <v-img
                   max-height="300"
                   class="rounded-lg elevation-8"
-                  :src="existingFile.url || fileUploaded.url"
+                  :src="existingFile.url || fileUploaded"
                 ></v-img>
               </v-col>
               <v-col class="text-center" cols="12" sm="2">
                 <v-btn
                   class="mt-5"
-                  @click="deleteFile"
+                  @click="clearPreviewFile"
                   color="red accent-4"
                   fab
                   dark
                 >
-                  <v-icon>mdi-delete</v-icon>
+                  <v-icon>mdi-close</v-icon>
                 </v-btn>
               </v-col>
             </v-row>
@@ -38,13 +37,13 @@
     <!--File Upload Field-->
     <v-col v-else class="text-center" cols="12">
       <v-file-input
-        v-if="loadingValue < 0"
         v-model="file"
+        v-if="!isLoading"
         color="pink accent-4"
         :label="label"
         prepend-icon
         prepend-inner-icon="mdi-upload"
-        @change="uploadFile"
+        @change="previewFile"
         outlined
         :rules="fileRule"
       >
@@ -55,52 +54,64 @@
 
       <v-progress-circular
         v-else
-        :size="90"
-        :width="9"
-        :rotate="360"
-        :value="loadingValue"
+        indeterminate
         color="pink accent-4"
-        >{{ loadingValue }}%</v-progress-circular
-      >
+      ></v-progress-circular>
     </v-col>
   </v-row>
 </template>
 
 <script>
+import { mapState } from 'vuex';
+
 export default {
   name: 'admin-file-upload',
-
-  props: {
-    loadingValue: {
-      type: Number
-    },
-    label: {
-      type: String
-    },
-    existingFile: {
-      type: Object,
-      default: () => {
-        return {
-          name: null,
-          type: null,
-          url: null
-        };
-      }
-    },
-    fileUploaded: {
-      type: Object
-    },
-    product: {
-      type: Object
-    }
-  },
+  props: ['fileUploaded', 'label', 'existingFile', 'isLoading', 'product'],
+  // props: {
+  //   loadingValue: {
+  //     type: Number
+  //   },
+  //   label: {
+  //     type: String
+  //   },
+  //   existingFile: {
+  //     type: Object,
+  //     default: () => {
+  //       return {
+  //         name: null,
+  //         type: null,
+  //         url: null
+  //       };
+  //     }
+  //   },
+  //   fileUploaded: {
+  //     type: Object
+  //   },
+  //   product: {
+  //     type: Object
+  //   }
+  // },
 
   data: () => ({
     file: null,
     fileRule: [v => !!v || 'File is required']
   }),
 
+  computed: {
+    ...mapState({
+      filePreview: state => state.services.uploads.filePreview
+    })
+  },
+
   methods: {
+    previewFile() {
+      this.$store.dispatch('services/uploads/previewFile', this.file);
+    },
+
+    clearPreviewFile() {
+      this.$store.dispatch('services/uploads/clearPreviewFile');
+    },
+
     uploadFile() {
       if (this.file) {
         this.$store.dispatch('services/uploads/uploadFile', this.file);
