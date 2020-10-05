@@ -173,11 +173,6 @@ export default {
 
   methods: {
     close() {
-      //reset image if user cancel out of menu
-      if (this.fileUploaded) {
-        this.$store.dispatch('services/uploads/deleteFile', this.fileUploaded);
-      }
-
       this.dialog = false;
     },
 

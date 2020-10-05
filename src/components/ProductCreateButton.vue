@@ -43,7 +43,6 @@
               <v-col cols="12">
                 <FormFileUpload
                   :label="'Upload Image'"
-                  :loadingValue="loadingValue"
                   :fileUploaded="fileUploaded"
                 />
               </v-col>
@@ -156,40 +155,40 @@ export default {
   computed: {
     ...mapState({
       fileUploaded: state => state.services.uploads.fileUploaded,
-      loadingValue: state => state.services.progress.loadingValue
+      file: state => state.services.uploads.file
     })
   },
 
   methods: {
     close() {
-      //if user cancel while image is uploaded then delete image & reset fields
-
-      console.log(this.fileUploaded);
-
-      if (this.fileUploaded) {
-        this.$store.dispatch('services/uploads/deleteFile', this.fileUploaded);
-      }
-
-      this.$refs.productCreateForm.reset(); //reset form
       this.dialog = false;
     },
 
-    createProduct() {
+    async createProduct() {
       const isValid = this.$refs.productCreateForm.validate(); //validate create form
 
+      //if form is valid create product
+      console.log(this.fileUploaded);
       if (isValid) {
-        const newProduct = {
-          name: this.name,
-          image: this.fileUploaded,
-          description: this.description,
-          price: this.price,
-          quantity: this.quantity
-        };
+        if (this.fileUploaded) {
+          const newProduct = {
+            name: this.name,
+            image: this.fileUploaded,
+            description: this.description,
+            price: this.price,
+            quantity: this.quantity
+          };
 
-        this.$store.dispatch('products/createProduct', newProduct);
-        this.$refs.productCreateForm.reset(); //reset form
+          await this.$store.dispatch('products/createProduct', newProduct);
 
-        this.dialog = false; // close dialog
+          this.$refs.productCreateForm.reset(); //reset form
+          this.dialog = false; // close dialog
+        } else {
+          this.$store.dispatch('services/notifications/setStatus', {
+            type: 'error',
+            message: new Error('Please confirm the image you want to upload.')
+          });
+        }
       }
     }
   }

@@ -1,10 +1,10 @@
 const state = () => ({
-  isLoading: true
+  isLoading: false
 });
 
 const mutations = {
-  SET_LOADING_STATUS: (state, loaded) => {
-    state.loaded = loaded;
+  SET_LOADING_STATUS: (state, value) => {
+    state.isLoading = value;
   }
 };
 

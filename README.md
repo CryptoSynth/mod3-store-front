@@ -13,6 +13,11 @@
     - add error handling from firebase authentication attempts  
     - add loading logic for login button  
 
+- Error/Unauthrized Pages
+  - make pages for when user types a non existing page or a page he or she cannot enter 
+
+- Add password recovery setting for login
+
 
 ## Project scripts:
 npm install

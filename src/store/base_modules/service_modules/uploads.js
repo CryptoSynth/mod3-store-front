@@ -1,6 +1,7 @@
 import { storage } from '../../../services/firebase';
 
 const state = () => ({
+  file: null,
   filePreview: null,
   fileUploaded: null
 });
@@ -15,7 +16,12 @@ const mutations = {
   },
 
   SET_UPLOADED_FILE: (state, file) => {
+    console.log(file);
     state.fileUploaded = file;
+  },
+
+  TEMP_FILE: (state, file) => {
+    state.file = file;
   }
 };
 
@@ -24,6 +30,9 @@ const actions = {
   //Preview Image using a FileReader API
   //====================================================
   previewFile({ commit, dispatch }, file) {
+    //save temp file
+    commit('TEMP_FILE', file);
+
     let progress = 0;
 
     //create reader instance from FileReader object
@@ -37,12 +46,12 @@ const actions = {
       progress = (e.loaded / e.total) * 100; //progress as a %
     };
 
-    //after completion set uploaded file
+    //on completion set uploaded file
     reader.onload = () => {
       //if the file has finished loading then set fileUploaded
       if (progress === 100) {
-        commit('services/progress/setProgress', false, { root: true }); //finished loading
-        commit('SET_UPLOADED_FILE', reader.result);
+        dispatch('services/progress/setProgress', false, { root: true }); //finished loading
+        commit('SET_PREVIEW_FILE', reader.result);
       }
     };
 
@@ -84,48 +93,48 @@ const actions = {
         console.log('Default actions here');
     }
 
-    try {
-      console.log(fileRef);
-      const fileTask = fileRef.child(`${file.name}`).put(file, {
-        contentType: file.type
-      });
+    const fileTask = fileRef.child(`${file.name}`).put(file, {
+      contentType: file.type
+    });
 
-      fileTask.on(
-        'state_changed',
-        () => {
-          //start loading event
-          dispatch('services/progress/setProgress', true, {
-            root: true
-          });
-        },
-        err => {
-          //reject any errors
-          dispatch(
-            'services/notifications/setStatus',
-            { type: 'error', message: err },
-            { root: true }
-          );
-        },
-        async () => {
-          //stop loading event
-          dispatch('services/progress/setProgress', false, { root: true });
-
+    fileTask.on(
+      'state_changed',
+      () => {
+        //start loading event
+        dispatch('services/progress/setProgress', true, {
+          root: true
+        });
+      },
+      err => {
+        //reject any errors
+        dispatch(
+          'services/notifications/setStatus',
+          { type: 'error', message: err },
+          { root: true }
+        );
+      },
+      async () => {
+        try {
           //get image downloadURL
           const downloadURL = await fileTask.snapshot.ref.getDownloadURL();
+
           commit('SET_UPLOADED_FILE', {
             name: file.name,
             type: file.type,
             url: downloadURL
           });
+
+          //stop loading event
+          dispatch('services/progress/setProgress', false, { root: true });
+        } catch (err) {
+          dispatch(
+            'services/notifications/setStatus',
+            { type: 'error', message: err },
+            { root: true }
+          );
         }
-      );
-    } catch (err) {
-      dispatch(
-        'services/notifications/setStatus',
-        { type: 'error', message: err },
-        { root: true }
-      );
-    }
+      }
+    );
   },
 
   //====================================================
@@ -174,8 +183,6 @@ const actions = {
         root: true
       });
 
-      //end progress
-      dispatch('services/progress/setProgress', -1, { root: true });
       commit('CLEAR_UPLOADED_FILE');
     } catch (err) {
       dispatch(

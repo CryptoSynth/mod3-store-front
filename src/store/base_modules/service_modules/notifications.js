@@ -6,7 +6,7 @@ const STATUS = {
     return {
       msg: `
            Code: ${err.code || '0'}
-           \nMessage: ${err.message ||
+           Message: ${err.message ||
              err.msg ||
              'There seems to be an error, please try again.'} 
           
