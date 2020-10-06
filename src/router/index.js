@@ -38,6 +38,11 @@ const routes = [
         component: () => import('../views/AdminProducts')
       }
     ]
+  },
+  {
+    path: '*',
+    name: 'Page-Not-Found',
+    component: () => import('../views/PageNotFound')
   }
 ];
 

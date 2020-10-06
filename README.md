@@ -1,20 +1,9 @@
 # mod3-store-front Project To-Do's:
-- set rules for firebase database accessing
 - format price to get valadation for both AdminEditButton & AdminCreateButton
   
-- File Upload component
-  - think of logic for when user clicks cancel and reseting the image selected
-  - fix reuploading causes image preview in create 
-  - fix file label stays in text-field after creating a product
-  - fix issue when image is loading with creating another product 
-  
-- Admin Login Component 
-  - add a snack notification for admin login 
-    - add error handling from firebase authentication attempts  
-    - add loading logic for login button  
 
-- Error/Unauthrized Pages
-  - make pages for when user types a non existing page or a page he or she cannot enter 
+- Admin Login Component 
+  - add loading logic for login button  
 
 - Add password recovery setting for login
 

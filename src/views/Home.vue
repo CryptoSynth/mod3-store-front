@@ -82,10 +82,10 @@ export default {
       console.log(err);
     }
 
-    // Snipcart.events.on('customer.signedin', customer => {
-    //   this.$store.commit('usersSnipcart/SET_TOKEN', customer.sessionToken);
-    //   this.$store.dispatch('service/usersSnipcart/getUserSession');
-    // });
+    Snipcart.events.on('customer.signedin', customer => {
+      this.$store.commit('usersSnipcart/SET_TOKEN', customer.sessionToken);
+      this.$store.dispatch('service/usersSnipcart/getUserSession');
+    });
   }
 };
 </script>
