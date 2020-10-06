@@ -2,7 +2,11 @@
   <v-container fluid>
     <v-row class="fill-height" align="center" justify="center">
       <v-col cols="12" md="8">
-        <v-skeleton-loader v-if="isLoading" type="card, actions" loading></v-skeleton-loader>
+        <v-skeleton-loader
+          v-if="isLoading"
+          type="card"
+          loading
+        ></v-skeleton-loader>
 
         <v-card v-else dark>
           <v-card-title>Home Page Edit</v-card-title>

@@ -112,6 +112,7 @@ export default {
   async created() {
     try {
       await this.$store.dispatch('products/fetchProducts'); //get products
+
       this.isLoading = false; //fetches have finished loading
     } catch (err) {
       console.log(err);

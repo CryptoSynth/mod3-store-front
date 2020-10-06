@@ -26,10 +26,8 @@
             <v-col cols="12">
               <FormFileUpload
                 :label="'Upload Image'"
-                :loadingValue="loadingValue"
-                :existingFile="product.image"
+                :existing="product"
                 :fileUploaded="fileUploaded"
-                :product="product"
               />
             </v-col>
 
@@ -166,32 +164,50 @@ export default {
 
   computed: {
     ...mapState({
-      fileUploaded: state => state.services.uploads.fileUploaded,
-      loadingValue: state => state.services.progress.loadingValue
+      fileUploaded: state => state.services.uploads.fileUploaded
     })
   },
 
   methods: {
     close() {
       this.dialog = false;
+      this.$store.commit('services/uploads/SET_PREVIEW_FILE', null); //on cancel clear preview file
     },
 
-    updateProduct(current_product) {
+    async updateProduct(current_product) {
       const isValid = this.$refs.productEditForm.validate(); //validate edit form
 
-      const updateProduct = {
-        id: current_product.id,
-        name: current_product.name,
-        image: this.fileUploaded || current_product.image,
-        description: current_product.description,
-        price: current_product.price,
-        quantity: current_product.quantity
-      };
-
+      //if form is valid create product
       if (isValid) {
-        this.$store.dispatch('products/updateProduct', updateProduct);
+        if (this.fileUploaded) {
+          const updateProduct = {
+            id: current_product.id,
+            name: current_product.name,
+            image: this.fileUploaded || current_product.image,
+            description: current_product.description,
+            price: current_product.price,
+            quantity: current_product.quantity
+          };
 
-        this.dialog = false; // close dialog
+          try {
+            await this.$store.dispatch('products/updateProduct', updateProduct);
+
+            await this.$store.dispatch('services/uploads/clearPreviewFile'); //clear file preview
+            await this.$store.dispatch('services/uploads/clearUploadedFile'); //clear uploaded file
+          } catch (err) {
+            this.$store.dispatch('services/notifications/setStatus', {
+              type: 'error',
+              message: err
+            });
+          }
+
+          this.dialog = false; // close dialog
+        } else {
+          this.$store.dispatch('services/notifications/setStatus', {
+            type: 'error',
+            message: new Error('Please confirm the image you want to upload.')
+          });
+        }
       }
     }
   }

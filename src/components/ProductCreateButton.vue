@@ -44,6 +44,11 @@
                 <FormFileUpload
                   :label="'Upload Image'"
                   :fileUploaded="fileUploaded"
+                  :existing="{
+                    image: {
+                      url: null
+                    }
+                  }"
                 />
               </v-col>
 
@@ -161,6 +166,7 @@ export default {
 
   methods: {
     close() {
+      this.$store.dispatch('services/uploads/clearUploadedFile'); //clear file preview
       this.dialog = false;
     },
 
@@ -168,7 +174,6 @@ export default {
       const isValid = this.$refs.productCreateForm.validate(); //validate create form
 
       //if form is valid create product
-      console.log(this.fileUploaded);
       if (isValid) {
         if (this.fileUploaded) {
           const newProduct = {
@@ -179,7 +184,18 @@ export default {
             quantity: this.quantity
           };
 
-          await this.$store.dispatch('products/createProduct', newProduct);
+          try {
+            //create new product
+            await this.$store.dispatch('products/createProduct', newProduct);
+
+            await this.$store.dispatch('services/uploads/clearPreviewFile'); //clear file preview
+            await this.$store.dispatch('services/uploads/clearUploadedFile'); //clear uploaded file
+          } catch (err) {
+            this.$store.dispatch('services/notifications/setStatus', {
+              type: 'error',
+              message: err
+            });
+          }
 
           this.$refs.productCreateForm.reset(); //reset form
           this.dialog = false; // close dialog

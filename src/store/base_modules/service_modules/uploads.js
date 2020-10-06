@@ -1,9 +1,10 @@
-import { storage } from '../../../services/firebase';
+import { db, storage } from '../../../services/firebase';
 
 const state = () => ({
   file: null,
   filePreview: null,
-  fileUploaded: null
+  fileUploaded: null,
+  isStored: false
 });
 
 const mutations = {
@@ -16,12 +17,19 @@ const mutations = {
   },
 
   SET_UPLOADED_FILE: (state, file) => {
-    console.log(file);
     state.fileUploaded = file;
+  },
+
+  CLEAR_UPLOADED_FILE: state => {
+    state.fileUploaded = null;
   },
 
   TEMP_FILE: (state, file) => {
     state.file = file;
+  },
+
+  SET_STORED: (state, value) => {
+    state.isStored = value;
   }
 };
 
@@ -71,6 +79,13 @@ const actions = {
   //====================================================
   clearPreviewFile({ commit }) {
     commit('CLEAR_PREVIEW_FILE');
+  },
+
+  //====================================================
+  //Clear File Uploaded using a FileReader API
+  //====================================================
+  clearUploadedFile({ commit }) {
+    commit('CLEAR_UPLOADED_FILE');
   },
 
   // ====================================================
@@ -140,8 +155,8 @@ const actions = {
   //====================================================
   //Delete file from firebase storage path
   //====================================================
-  async deleteFile({ commit, dispatch }, payload) {
-    const { file, product } = payload;
+  async deleteFile({ dispatch }, product) {
+    const file = product.image;
 
     const type = file.type.split('/')[0];
 
@@ -165,25 +180,64 @@ const actions = {
     try {
       await fileTask.delete();
 
-      //delete product image in firebase database
-      const updateProduct = {
-        id: product.id,
-        name: product.name,
-        image: {
-          name: null,
-          type: null,
-          url: null
-        },
-        description: product.description,
-        price: product.price,
-        quantity: product.quantity
-      };
+      //delete image from product
+      await db
+        .collection('products')
+        .doc(product.id)
+        .update({
+          image: {
+            name: null,
+            type: null,
+            url: null
+          }
+        });
 
-      dispatch('products/updateProduct', updateProduct, {
-        root: true
+      dispatch(
+        'services/notifications/setStatus',
+        { type: 'success', message: 'Image deleted!' },
+        { root: true }
+      );
+    } catch (err) {
+      dispatch(
+        'services/notifications/setStatus',
+        { type: 'error', message: err },
+        { root: true }
+      );
+    }
+  },
+
+  //====================================================
+  //Check file is stored in firebase storage path
+  //====================================================
+  async checkFile({ commit, dispatch }, file) {
+    const type = file.type.split('/')[0];
+
+    //base on type choose file reference
+    let fileRef;
+
+    switch (type) {
+      case 'image':
+        fileRef = storage.ref().child(`assets/images/store`);
+        break;
+      case 'video':
+        fileRef = storage.ref().child(`assets/videos/store`);
+        break;
+      default:
+        console.log('Default actions here');
+    }
+
+    try {
+      //list all folder references from firebase
+      const list = await fileRef.listAll();
+
+      //check if file exists in firebase storage
+      const isStored = list.items.some(item => {
+        return item.name === file.name;
       });
 
-      commit('CLEAR_UPLOADED_FILE');
+      console.log(isStored);
+
+      commit('SET_STORED', isStored); //commit if file is in storage
     } catch (err) {
       dispatch(
         'services/notifications/setStatus',

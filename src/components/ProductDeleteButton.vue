@@ -56,8 +56,7 @@ export default {
     },
 
     deleteProduct(product) {
-      this.$store.dispatch('products/deleteProduct', product.id);
-      this.$store.dispatch('services/uploads/deleteFile', product.image);
+      this.$store.dispatch('products/deleteProduct', product);
       this.dialog = false;
     }
   }

@@ -69,7 +69,7 @@ const actions = {
   //====================================================
   //Create new Products from firebase collection products
   //====================================================
-  createProduct({ commit, dispatch }, newProduct) {
+  async createProduct({ commit, dispatch }, newProduct) {
     //generate doc ref
     const docRef = db.collection('products').doc();
 
@@ -79,72 +79,75 @@ const actions = {
       ...newProduct
     };
 
-    //add docRef to firebase store w/ new prouct
-    docRef
-      .set(newProduct)
-      .then(() => {
-        commit('SET_NEW_PRODUCT', newProduct);
-        dispatch(
-          'services/notifications/setStatus',
-          { type: 'success', message: 'Product Created!' },
-          { root: true }
-        );
-      })
-      .catch(err => {
-        dispatch(
-          'services/notifications/setStatus',
-          { type: 'error', message: err },
-          { root: true }
-        );
-      });
+    try {
+      //add docRef to firebase store w/ new prouct
+      await docRef.set(newProduct);
+
+      commit('SET_NEW_PRODUCT', newProduct);
+      dispatch(
+        'services/notifications/setStatus',
+        { type: 'success', message: 'Product Created!' },
+        { root: true }
+      );
+    } catch (err) {
+      dispatch(
+        'services/notifications/setStatus',
+        { type: 'error', message: err },
+        { root: true }
+      );
+    }
   },
 
   //====================================================
   //Update products from firebase collection products
   //====================================================
-  updateProduct({ commit, dispatch }, updateProduct) {
-    db.collection('products')
-      .doc(updateProduct.id)
-      .update(updateProduct)
-      .then(() => {
-        commit('UPDATE_PRODUCT', updateProduct); //update success status
-        dispatch(
-          'services/notifications/setStatus',
-          { type: 'success', message: 'Product Updated!' },
-          { root: true }
-        );
-      })
-      .catch(err => {
-        dispatch(
-          'services/notifications/setStatus',
-          { type: 'error', message: err },
-          { root: true }
-        );
-      });
+  async updateProduct({ commit, dispatch }, updateProduct) {
+    try {
+      await db
+        .collection('products')
+        .doc(updateProduct.id)
+        .update(updateProduct);
+
+      commit('UPDATE_PRODUCT', updateProduct); //update success status
+      dispatch(
+        'services/notifications/setStatus',
+        { type: 'success', message: 'Product Updated!' },
+        { root: true }
+      );
+    } catch (err) {
+      dispatch(
+        'services/notifications/setStatus',
+        { type: 'error', message: err },
+        { root: true }
+      );
+    }
   },
 
   //====================================================
   //Delete products from firebase collection products
   //====================================================
-  deleteProduct({ commit, dispatch }, productID) {
-    db.collection('products')
-      .doc(productID)
-      .delete()
-      .then(() => {
-        commit('DELETE_PRODUCT', productID); //delete success status
-        dispatch(
-          'services/notifications/setStatus',
-          { type: 'success', message: 'Product Deleted!' },
-          { root: true }
-        );
-      })
-      .catch(err => {
-        dispatch(
-          'services/notifications/setStatus',
-          { type: 'error', message: err },
-          { root: true }
-        );
-      });
+  async deleteProduct({ commit, dispatch }, product) {
+    try {
+      await this.dispatch('services/uploads/deleteFile', product);
+
+      await db
+        .collection('products')
+        .doc(product.id)
+        .delete();
+
+      commit('DELETE_PRODUCT', product.id); //delete success status
+      dispatch(
+        'services/notifications/setStatus',
+        { type: 'success', message: 'Product Deleted!' },
+        { root: true }
+      );
+    } catch (err) {
+      dispatch(
+        'services/notifications/setStatus',
+        { type: 'error', message: err },
+        { root: true }
+      );
+    }
   }
 };
 
