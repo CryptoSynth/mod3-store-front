@@ -1,5 +1,10 @@
 <template>
-  <v-snackbar :timeout="-1" v-model="status.active" bottom :color="status.color">
+  <v-snackbar
+    :timeout="-1"
+    v-model="status.active"
+    bottom
+    :color="status.color"
+  >
     {{ status.msg }}
     <template v-slot:action="{ attrs }">
       <v-btn v-bind="attrs" class="ml-3" x-small dark fab @click="close">
@@ -34,5 +39,4 @@ export default {
 };
 </script>
 
-<style>
-</style>
+<style></style>

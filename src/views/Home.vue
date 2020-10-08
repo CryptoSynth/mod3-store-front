@@ -2,8 +2,12 @@
   <div>
     <span>
       <v-app-bar dark app>
-        <v-skeleton-loader v-if="isLoading" type="avatar" loading></v-skeleton-loader>
-        <h3 v-else>{{companyInfo.title}}</h3>
+        <v-skeleton-loader
+          v-if="isLoading"
+          type="avatar"
+          loading
+        ></v-skeleton-loader>
+        <h3 v-else>{{ companyInfo.title }}</h3>
 
         <v-spacer></v-spacer>
 
@@ -11,7 +15,12 @@
           <v-btn class="mr-3" color="red" text @click="logout">Logout</v-btn>
         </span>
 
-        <v-btn v-else class="snipcart-customer-signin mr-3" color="pink accent-4">Login</v-btn>
+        <v-btn
+          v-else
+          class="snipcart-customer-signin mr-3"
+          color="pink accent-4"
+          >Login</v-btn
+        >
 
         <v-btn color="pink accent-4" class="snipcart-checkout">
           <v-icon>mdi-cart</v-icon>
@@ -30,7 +39,13 @@
 
       <v-container fluid>
         <v-row justify="center" align="center">
-          <v-col v-for="(product, index) in products" :key="index" cols="12" sm="6" md="3">
+          <v-col
+            v-for="(product, index) in products"
+            :key="index"
+            cols="12"
+            sm="6"
+            md="3"
+          >
             <v-skeleton-loader type="card" :loading="isLoading">
               <ProductCard :product="product" />
             </v-skeleton-loader>

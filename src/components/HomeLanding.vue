@@ -12,9 +12,9 @@
           height="500px"
           color="transparent"
         >
-          <h1 class="display-3">{{companyInfo.title}}</h1>
-          <h2 class="display-2">{{companyInfo.subtitle}}</h2>
-          <h2>{{companyInfo.description}}</h2>
+          <h1 class="display-3">{{ companyInfo.title }}</h1>
+          <h2 class="display-2">{{ companyInfo.subtitle }}</h2>
+          <h2>{{ companyInfo.description }}</h2>
         </v-sheet>
       </v-col>
       <v-spacer></v-spacer>

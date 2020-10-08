@@ -1,4 +1,4 @@
-  <template>
+<template>
   <div>
     <v-app-bar app clipped-left dark color="pink accent-4">
       <v-app-bar-nav-icon @click="toggleMenu"></v-app-bar-nav-icon>
@@ -6,10 +6,18 @@
       <v-toolbar-title>Admin Dashboard</v-toolbar-title>
     </v-app-bar>
 
-    <v-navigation-drawer bottom app clipped v-model="toggle" dark color="dark" floating>
+    <v-navigation-drawer
+      bottom
+      app
+      clipped
+      v-model="toggle"
+      dark
+      color="dark"
+      floating
+    >
       <v-list nav dense>
         <v-tooltip right v-for="item in items" :key="item.title">
-          <template v-slot:activator="{on}">
+          <template v-slot:activator="{ on }">
             <v-list-item :to="item.to" v-on="on">
               <v-list-item-icon>
                 <v-icon>{{ item.icon }}</v-icon>
@@ -20,7 +28,7 @@
               </v-list-item-content>
             </v-list-item>
           </template>
-          <span>{{item.tooltip}}</span>
+          <span>{{ item.tooltip }}</span>
         </v-tooltip>
       </v-list>
 
@@ -70,5 +78,4 @@ export default {
 };
 </script>
 
-<style>
-</style>
+<style></style>

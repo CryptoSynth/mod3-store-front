@@ -35,7 +35,7 @@
                       label="Password"
                       outlined
                       color="pink accent-4"
-                      :append-icon="show ? 'mdi-eye': 'mdi-eye-off'"
+                      :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
                       @click:append="show = !show"
                     ></v-text-field>
                   </v-col>
@@ -85,5 +85,4 @@ export default {
 };
 </script>
 
-<style>
-</style>
+<style></style>
