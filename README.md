@@ -1,13 +1,13 @@
 # mod3-store-front Project To-Do's:
 - format price to get valadation for both AdminEditButton & AdminCreateButton
-  
 
 - Admin Login Component 
   - add loading logic for login button  
 
 - Add password recovery setting for login
 
-
+- Add .env for config firebase and snipcart settings 
+-  
 ## Project scripts:
 npm install
 ```
