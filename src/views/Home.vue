@@ -1,58 +1,53 @@
 <template>
   <div>
-    <span>
-      <v-app-bar dark app>
-        <v-skeleton-loader
-          v-if="isLoading"
-          type="avatar"
-          loading
-        ></v-skeleton-loader>
-        <h3 v-else>{{ companyInfo.title }}</h3>
+    <v-app-bar dark app>
+      <v-skeleton-loader
+        v-if="isLoading"
+        type="avatar"
+        loading
+      ></v-skeleton-loader>
+      <h3 v-else>{{ companyInfo.title }}</h3>
 
-        <v-spacer></v-spacer>
+      <v-spacer></v-spacer>
 
-        <span v-if="userSnipcart">
-          <v-btn class="mr-3" color="red" text @click="logout">Logout</v-btn>
-        </span>
+      <span v-if="userSnipcart">
+        <v-btn class="mr-3" color="red" text @click="logout">Logout</v-btn>
+      </span>
 
-        <v-btn
-          v-else
-          class="snipcart-customer-signin mr-3"
-          color="pink accent-4"
-          >Login</v-btn
+      <v-btn v-else class="snipcart-customer-signin mr-3" color="pink accent-4"
+        >Login</v-btn
+      >
+
+      <v-btn color="pink accent-4" class="snipcart-checkout">
+        <v-icon>mdi-cart</v-icon>
+      </v-btn>
+    </v-app-bar>
+
+    <v-container fluid>
+      <v-row align="center" justify="center">
+        <v-col cols="12">
+          <v-skeleton-loader type="image" :loading="isLoading">
+            <HomeLanding :companyInfo="companyInfo" />
+          </v-skeleton-loader>
+        </v-col>
+      </v-row>
+    </v-container>
+
+    <v-container fluid>
+      <v-row justify="center" align="center">
+        <v-col
+          v-for="(product, index) in products"
+          :key="index"
+          cols="12"
+          sm="6"
+          md="3"
         >
-
-        <v-btn color="pink accent-4" class="snipcart-checkout">
-          <v-icon>mdi-cart</v-icon>
-        </v-btn>
-      </v-app-bar>
-
-      <v-container fluid>
-        <v-row align="center" justify="center">
-          <v-col cols="12">
-            <v-skeleton-loader type="image" :loading="isLoading">
-              <HomeLanding :companyInfo="companyInfo" />
-            </v-skeleton-loader>
-          </v-col>
-        </v-row>
-      </v-container>
-
-      <v-container fluid>
-        <v-row justify="center" align="center">
-          <v-col
-            v-for="(product, index) in products"
-            :key="index"
-            cols="12"
-            sm="6"
-            md="3"
-          >
-            <v-skeleton-loader type="card" :loading="isLoading">
-              <ProductCard :product="product" />
-            </v-skeleton-loader>
-          </v-col>
-        </v-row>
-      </v-container>
-    </span>
+          <v-skeleton-loader type="card" :loading="isLoading">
+            <ProductCard :product="product" />
+          </v-skeleton-loader>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
@@ -97,10 +92,10 @@ export default {
       console.log(err);
     }
 
-    Snipcart.events.on('customer.signedin', customer => {
-      this.$store.commit('usersSnipcart/SET_TOKEN', customer.sessionToken);
-      this.$store.dispatch('service/usersSnipcart/getUserSession');
-    });
+    // Snipcart.events.on('customer.signedin', customer => {
+    //   this.$store.commit('usersSnipcart/SET_TOKEN', customer.sessionToken);
+    //   this.$store.dispatch('service/usersSnipcart/getUserSession');
+    // });
   }
 };
 </script>

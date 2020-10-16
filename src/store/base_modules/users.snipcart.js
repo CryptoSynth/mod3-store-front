@@ -1,10 +1,9 @@
-import { development } from '../../environments/snipcart.env.json';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
 //Global axios header
 const headers = {
-  Authorization: `Basic ${btoa(development.SECRET_API_KEY)}`,
+  Authorization: `Basic ${btoa(process.env.VUE_APP_SNIPCART_SECRET_API_KEY)}`,
   Accept: 'application/json'
 };
 

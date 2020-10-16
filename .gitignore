@@ -4,6 +4,7 @@ node_modules
 
 
 # local env files
+.env
 .env.local
 .env.*.local
 
@@ -22,6 +23,5 @@ pnpm-debug.log*
 *.sln
 *.sw?
 
-#CONFIG Files
-configs
-environments 
+#Environment Files
+
